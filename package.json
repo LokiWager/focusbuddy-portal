@@ -1,0 +1,62 @@
+{
+  "name": "wxt-react-starter",
+  "description": "manifest.json description",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "react-devtools:popup": "PORT=8097 react-devtools",
+    "react-devtools:dashboard": "PORT=8098 react-devtools",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "dependencies": {
+    "@radix-ui/react-tooltip": "^1.1.7",
+    "@tailwindcss/vite": "^4.0.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.474.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router": "^7.1.3",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^4.0.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/chrome": "^0.0.280",
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "@typescript-eslint/eslint-plugin": "^8.21.0",
+    "@typescript-eslint/parser": "^8.21.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "babel-plugin-react-compiler": "19.0.0-beta-decd7b8-20250118",
+    "eslint": "^9.18.0",
+    "eslint-import-resolver-typescript": "^3.7.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react": "^7.37.4",
+    "eslint-plugin-react-compiler": "19.0.0-beta-decd7b8-20250118",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "jiti": "^2.4.2",
+    "react-devtools": "^6.0.1",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.21.0",
+    "wxt": "^0.19.13"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "dtrace-provider",
+      "esbuild",
+      "spawn-sync",
+      "electron"
+    ]
+  }
+}
