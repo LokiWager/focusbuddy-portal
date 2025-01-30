@@ -1,3 +1,5 @@
+import { HTTPRequestExample } from "./HTTPRequestExample";
+
 import { useState } from "react";
 import { useParams } from "react-router";
 
@@ -6,6 +8,7 @@ export function Settings() {
   return (
     <div>
       <h2 className="text-lg font-bold">Settings</h2>
+      <HTTPRequestExample />
       {params.id}
       <Counter defaultCount={30} />
     </div>

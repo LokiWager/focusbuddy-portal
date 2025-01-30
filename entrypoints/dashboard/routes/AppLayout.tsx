@@ -9,9 +9,10 @@ export function AppLayout() {
         <div className="flex flex-col">
           <NavItem to="/">Home</NavItem>
           <NavItem to="/settings">Settings</NavItem>
+          <NavItem to="/blocklist">Blocklist</NavItem>
         </div>
       </div>
-      <div className="px-5 py-10">
+      <div className="px-5 py-10 flex-1">
         <Outlet />
       </div>
     </div>
