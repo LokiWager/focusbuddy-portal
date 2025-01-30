@@ -3,6 +3,7 @@ import reactCompiler from "eslint-plugin-react-compiler";
 import reactHooks from "eslint-plugin-react-hooks";
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
+import pluginQuery from "@tanstack/eslint-plugin-query";
 
 function errorToWarn(config) {
   if (Array.isArray(config)) {
@@ -34,5 +35,6 @@ export default tseslint.config(
       "react-hooks": reactHooks,
     },
     rules: { ...reactHooks.configs.recommended.rules },
-  }
+  },
+  pluginQuery.configs["flat/recommended"]
 );
