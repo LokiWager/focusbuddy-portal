@@ -18,38 +18,38 @@ const FocusTimer = () => {
   const [focusLength, setFocusLength] = useState<number>(30);
   const [breakLength, setBreakLength] = useState<number>(10);
   const [focusType, setFocusType] = useState<string>("Choose a focus type");
-  const [remainingFocusTime, setRemainingFocusTime] = useState<number>(focusLength * 60); // Store time left
-  const [remainingBreakTime, setRemainingBreakTime] = useState<number>(breakLength * 60); // Store time left
-  const [focusPaused, setFocusPaused] = useState<boolean>(false); // Track pause state
-  const [breakPaused, setBreakPaused] = useState<boolean>(false); // Track pause state
+  const [remainingFocusTime, setRemainingFocusTime] = useState<number>(focusLength * 60); 
+  const [remainingBreakTime, setRemainingBreakTime] = useState<number>(breakLength * 60);
+  const [focusPaused, setFocusPaused] = useState<boolean>(false);
+  const [breakPaused, setBreakPaused] = useState<boolean>(false);
   const [startClicked, setStartClicked] = useState<boolean>(false);
   
 
   const idleState = () => {
     setCurrentState("idle");
-    setFocusType("Choose a focus type"); // Reset focus type when going to idle
-    setFocusLength(30); // Reset focus length when going to idle
-    setBreakLength(10); // Reset break length when going to idle
+    setFocusType("Choose a focus type");
+    setFocusLength(30);
+    setBreakLength(10);
   };
 
   const startFocusState = () => {
     setCurrentState("focus");
-    setRemainingFocusTime(focusLength * 60); // Reset time when starting focus
-    setRemainingBreakTime(breakLength * 60); // Reset time when starting focus
-    setFocusPaused(false); // Reset pause state when starting focus
-    setBreakPaused(true); // Reset pause state when starting focus
+    setRemainingFocusTime(focusLength * 60);
+    setRemainingBreakTime(breakLength * 60);
+    setFocusPaused(false);
+    setBreakPaused(true);
   };
 
   const backToFocusState = () => {
     setCurrentState("focus");
-    setFocusPaused(false); // Reset pause state when starting focus
-    setBreakPaused(true); // Reset pause state when starting focus
+    setFocusPaused(false);
+    setBreakPaused(true);
   };
 
   const restState = () => {
     setCurrentState("rest");
-    setFocusPaused(true); // Reset pause state when starting focus
-    setBreakPaused(false); // Reset pause state when starting focus
+    setFocusPaused(true);
+    setBreakPaused(false);
   };
 
   const focusSettings = () => {

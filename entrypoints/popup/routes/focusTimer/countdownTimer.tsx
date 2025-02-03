@@ -4,7 +4,7 @@ interface CountdownTimerProps {
   seconds: number;
   onComplete: () => void;
   onTimeUpdate?: (timeLeft: number) => void;
-  paused?: boolean; // New prop to pause timer
+  paused?: boolean;
 }
 
 const CountdownTimer = ({ seconds, onComplete, onTimeUpdate, paused = false }: CountdownTimerProps) => {
