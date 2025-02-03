@@ -8,8 +8,6 @@ import {
 } from "@/common/components/ui/dropdown-menu";
 import { Button } from "@/common/components/ui/button";
 import CountdownTimer from "./countDownTimer";
-  
-
 
 const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
 
@@ -20,8 +18,6 @@ const FocusTimer = () => {
   const [focusType, setFocusType] = useState<string>("Choose a focus type");
   const [remainingFocusTime, setRemainingFocusTime] = useState<number>(focusLength * 60); 
   const [remainingBreakTime, setRemainingBreakTime] = useState<number>(breakLength * 60);
-  const [focusPaused, setFocusPaused] = useState<boolean>(false);
-  const [breakPaused, setBreakPaused] = useState<boolean>(false);
   const [startClicked, setStartClicked] = useState<boolean>(false);
   
 
@@ -36,20 +32,14 @@ const FocusTimer = () => {
     setCurrentState("focus");
     setRemainingFocusTime(focusLength * 60);
     setRemainingBreakTime(breakLength * 60);
-    setFocusPaused(false);
-    setBreakPaused(true);
   };
 
   const backToFocusState = () => {
     setCurrentState("focus");
-    setFocusPaused(false);
-    setBreakPaused(true);
   };
 
   const restState = () => {
     setCurrentState("rest");
-    setFocusPaused(true);
-    setBreakPaused(false);
   };
 
   const focusSettings = () => {
@@ -184,7 +174,6 @@ const FocusTimer = () => {
             seconds={Math.floor(remainingFocusTime)}
             onComplete={completeSession}
             onTimeUpdate={setRemainingFocusTime}
-            paused={focusPaused}
           />
           <div className="button-container">
             <Button className="button1" onClick={startBreak} disabled={remainingBreakTime <= 0}>Start Break</Button>
@@ -201,7 +190,6 @@ const FocusTimer = () => {
             seconds={Math.floor(remainingBreakTime)}
             onComplete={endBreak}
             onTimeUpdate={setRemainingBreakTime}
-            paused={breakPaused}
           />
           <div className="button-container">
             <Button className="button1" onClick={endBreak}>Back to Focus Session</Button>

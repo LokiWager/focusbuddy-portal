@@ -4,19 +4,13 @@ interface CountdownTimerProps {
   seconds: number;
   onComplete: () => void;
   onTimeUpdate?: (timeLeft: number) => void;
-  paused?: boolean;
 }
 
-const CountdownTimer = ({ seconds, onComplete, onTimeUpdate, paused = false }: CountdownTimerProps) => {
+const CountdownTimer = ({ seconds, onComplete, onTimeUpdate}: CountdownTimerProps) => {
   const [timeLeft, setTimeLeft] = useState(seconds);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (paused) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      return;
-    }
-
     if (timeLeft <= 0) {
       onComplete();
       return;
@@ -33,7 +27,7 @@ const CountdownTimer = ({ seconds, onComplete, onTimeUpdate, paused = false }: C
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [paused, timeLeft, onComplete, onTimeUpdate]);
+  }, [timeLeft, onComplete, onTimeUpdate]);
 
   useEffect(() => {
     if (timeLeft <= 0 && intervalRef.current) {
