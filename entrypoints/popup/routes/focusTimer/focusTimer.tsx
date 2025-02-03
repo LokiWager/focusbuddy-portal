@@ -22,6 +22,8 @@ const FocusTimer = () => {
   const [remainingBreakTime, setRemainingBreakTime] = useState<number>(breakLength * 60); // Store time left
   const [focusPaused, setFocusPaused] = useState<boolean>(false); // Track pause state
   const [breakPaused, setBreakPaused] = useState<boolean>(false); // Track pause state
+  const [startClicked, setStartClicked] = useState<boolean>(false);
+  
 
   const idleState = () => {
     setCurrentState("idle");
@@ -79,11 +81,13 @@ const FocusTimer = () => {
   };
 
   const startFocus = () => {
-    startFocusState();
-    // TODO: check duration is valid
-    // TODO: check for overlap sessions
-    // TODO: check if focus type is defined
-    // TODO: add request to create focus session and update user status
+    setStartClicked(true);
+    if (focusLength > 0 && focusType != "Choose a focus type") {
+      // TODO: check for overlap sessions
+      startFocusState();
+      // TODO: add request to create focus session and update user status
+      setStartClicked(false);
+    }
   }
 
   const startBreak = () => {
@@ -114,7 +118,7 @@ const FocusTimer = () => {
               className="decre-button">
               -
             </button>
-            <div className="input-container">
+            <div className={`input-container ${startClicked && focusLength <= 0 ? "error-border" : ""}`}>
               <input
                 type="number"
                 value={focusLength}
@@ -128,6 +132,7 @@ const FocusTimer = () => {
               +
             </button>
           </div>
+          {startClicked && focusLength <= 0 && <span className="error-message">Please enter a positive duration.</span>}
 
           <div className="break-length-options">
             Break:
@@ -150,11 +155,11 @@ const FocusTimer = () => {
               +
             </button>
           </div>
-          
+
           <div className="dropdown-menu">
             Type:
             <DropdownMenu>
-              <DropdownMenuTrigger>{focusType}</DropdownMenuTrigger>
+              <DropdownMenuTrigger className={startClicked && focusType === "Choose a focus type" ? "error-border" : ""}>{focusType}</DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={() => handleFocusTypeChange("Work")}>Work</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleFocusTypeChange("Study")}>Study</DropdownMenuItem>
@@ -163,6 +168,8 @@ const FocusTimer = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
+          {startClicked && focusType === "Choose a focus type" && <span className="error-message">Please choose a focus type.</span>}
+
           <div className="button-container">
             <Button className="button1" onClick={startFocus}>Start Focus</Button>
             <Button className="button2" onClick={focusSettings}>Configure Focus Settings</Button>
@@ -181,7 +188,7 @@ const FocusTimer = () => {
             paused={focusPaused}
           />
           <div className="button-container">
-            <Button className="button1" onClick={startBreak}>Start Break</Button>
+            <Button className="button1" onClick={startBreak} disabled={remainingBreakTime <= 0}>Start Break</Button>
             <Button className="button2" onClick={completeSession}>End Current Session</Button> 
           </div>
         </div>
