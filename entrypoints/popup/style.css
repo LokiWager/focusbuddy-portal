@@ -1,2 +1,253 @@
 @import "tailwindcss";
 @import "../../common/common.css";
+
+a {
+  text-decoration: none;
+  color: #000000;
+}
+
+/* Note:
+	Below is the style for App.tsx */
+
+.app-container{
+	background-color: #F5F5F5;
+}
+
+.app-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 5px; 
+  position: relative;
+}
+
+.focus-buddy-link {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-family: 'Cursive', 'Arial', sans-serif;
+  font-size: 1.2rem;
+  color: #000000;
+  padding: 10px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.focus-buddy-link img {
+  width: 55px;
+  height: 55px;
+  margin-right: 8px; 
+}
+
+.settings-icon {
+  position: absolute;
+  top: 10px;
+  right: 0;
+  width: 48px;
+  height: 48px;
+  padding: 8px;
+  transition: opacity 0.3s ease;
+}
+
+.settings-icon:hover {
+  opacity: 0.8;
+}
+
+/* Tabs layout */
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+    margin-bottom: 16px;
+    outline: none;
+  }
+  
+.tab-button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	border: 2px solid transparent;
+	border-radius: 8px;
+	transition: all 0.3s ease-in-out;
+	font-weight: bold;
+	font-family: 'Cursive', 'Arial', sans-serif;
+	font-size: 1.0rem;
+	color: #000000;
+}
+  
+.tab-button img {
+	width: 50px;
+	height: 50px;
+	object-fit: contain;
+	border-radius: 8px;
+	margin-bottom: 8px; 
+}
+
+.tab-button:hover img {
+	opacity: 0.8;
+}
+
+/* Active tab */
+.active-tab {
+	border: none;
+	text-decoration: underline;
+	text-decoration-color: #C1CEF8;
+	text-decoration-thickness: 4px;
+}
+
+/* Display area */
+.content-container {
+	width: 320px; /* w-80 */
+	height: 320px; /* h-80 */
+	/* border: 2px solid #ddd; */
+	border-radius: 8px;
+	overflow: hidden;
+	/* box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); */
+	margin-top: 25px;
+}
+
+/* Note:
+	Below is the style for focusTimer.tsx */
+
+.focus-timer-container p {
+	font-weight: bold;
+  font-family: 'Cursive', 'Arial', sans-serif;
+  font-size: 1.0rem;
+	text-align: center;
+  color: #000000;
+}
+
+	/* Style the main container to ensure all elements are aligned vertically */
+.idle-state-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Style for each options section */
+.focus-length-options,
+.break-length-options,
+.dropdown-menu {
+	font-family: 'Arial', sans-serif; /* Set the desired font */
+  font-size: 0.9rem; /* Adjust the size of the text */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center; /* Center the items inside the section */
+  width: 100%; /* Make sections take up the full width */
+  max-width: 400px; /* Optional: Limit the maximum width for better alignment */
+}
+
+/* Style the buttons for both focus-length-options and break-length-options */
+.focus-length-options button,
+.break-length-options button {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%; /* Makes the button round */
+  color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 15px; /* Adjust text size to fit button */
+  cursor: pointer;
+  border: none;
+}
+
+/* Styling for the decrement button */
+.decre-button {
+  background-color: #C1CEF8;
+}
+
+/* Styling for the increment button */
+.incre-button {
+  background-color: #F2CDCD;
+}
+
+/* Style the input field with a pink background */
+.focus-length-options input,
+.break-length-options input {
+  width: 80px;
+  height: 30px;
+  text-align: center;
+  background-color: #ECE7E7;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Hide the increment/decrement buttons for input[type=number] */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Style the dropdown menu container */
+.dropdown-menu {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Style the dropdown trigger */
+.dropdown-menu button {
+  background-color: #ECE7E7;
+  color: black;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+	border: 2px solid #ccc;
+	font-family: 'Arial', sans-serif;
+	font-size: 13px;
+	text-align: center;
+}
+
+.dropdown-menu button:hover {
+  background-color: #ECE7E7;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.button1 {
+  background-color: #C7E3EB;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 200px;
+}
+
+.button1:hover {
+  background-color: #C1CEF8;
+}
+
+.button2 {
+  background-color: #F8E6E6;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 200px;
+}
+
+.button2:hover {
+  background-color: #F2CDCD;
+}
+
