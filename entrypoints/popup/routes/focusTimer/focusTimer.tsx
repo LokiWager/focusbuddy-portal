@@ -92,7 +92,6 @@ const FocusTimer = () => {
 
   const startBreak = () => {
     restState();
-    // TODO: if break length is 0, let user know there's no break left
     // TODO: add request to update focus session and user status
   }
 
