@@ -124,7 +124,7 @@ a {
 .idle-state-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
 /* Style for each options section */
@@ -135,7 +135,7 @@ a {
   font-size: 0.9rem; /* Adjust the size of the text */
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
   justify-content: center; /* Center the items inside the section */
   width: 100%; /* Make sections take up the full width */
   max-width: 400px; /* Optional: Limit the maximum width for better alignment */
@@ -166,16 +166,32 @@ a {
   background-color: #F2CDCD;
 }
 
-/* Style the input field with a pink background */
-.focus-length-options input,
-.break-length-options input {
+.input-container {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Adjust spacing */
   width: 80px;
   height: 30px;
   text-align: center;
   background-color: #ECE7E7;
   border: 2px solid #ccc;
   border-radius: 8px;
-  font-size: 13px;
+}
+
+.input-label {
+  font-size: 12px;
+  color: gray;
+  font-weight: bold;
+}
+
+
+/* Style the input field with a pink background */
+.focus-length-options input,
+.break-length-options input {
+  width: 40px;
+  height: 30px;
+  text-align: center;
+  font-size: 14px;
 }
 
 /* Hide the increment/decrement buttons for input[type=number] */
@@ -249,5 +265,10 @@ input[type="number"] {
 
 .button2:hover {
   background-color: #F2CDCD;
+}
+
+.countdown-timer {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 

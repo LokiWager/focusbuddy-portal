@@ -4,11 +4,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
 import { Button } from "@/common/components/ui/button";
+import CountdownTimer from "./countDownTimer";
   
 
 
@@ -19,15 +18,36 @@ const FocusTimer = () => {
   const [focusLength, setFocusLength] = useState<number>(30);
   const [breakLength, setBreakLength] = useState<number>(10);
   const [focusType, setFocusType] = useState<string>("Choose a focus type");
+  const [remainingFocusTime, setRemainingFocusTime] = useState<number>(focusLength * 60); // Store time left
+  const [remainingBreakTime, setRemainingBreakTime] = useState<number>(breakLength * 60); // Store time left
+  const [focusPaused, setFocusPaused] = useState<boolean>(false); // Track pause state
+  const [breakPaused, setBreakPaused] = useState<boolean>(false); // Track pause state
 
   const idleState = () => {
     setCurrentState("idle");
+    setFocusType("Choose a focus type"); // Reset focus type when going to idle
+    setFocusLength(30); // Reset focus length when going to idle
+    setBreakLength(10); // Reset break length when going to idle
   };
-  const focusState = () => {
+
+  const startFocusState = () => {
     setCurrentState("focus");
+    setRemainingFocusTime(focusLength * 60); // Reset time when starting focus
+    setRemainingBreakTime(breakLength * 60); // Reset time when starting focus
+    setFocusPaused(false); // Reset pause state when starting focus
+    setBreakPaused(true); // Reset pause state when starting focus
   };
+
+  const backToFocusState = () => {
+    setCurrentState("focus");
+    setFocusPaused(false); // Reset pause state when starting focus
+    setBreakPaused(true); // Reset pause state when starting focus
+  };
+
   const restState = () => {
     setCurrentState("rest");
+    setFocusPaused(true); // Reset pause state when starting focus
+    setBreakPaused(false); // Reset pause state when starting focus
   };
 
   const focusSettings = () => {
@@ -55,8 +75,32 @@ const FocusTimer = () => {
   };
 
   const handleFocusTypeChange = (value: string) => {
-    setFocusType(value); // Update the focusType state when a dropdown option is selected
+    setFocusType(value);
   };
+
+  const startFocus = () => {
+    startFocusState();
+    // TODO: check duration is valid
+    // TODO: check for overlap sessions
+    // TODO: check if focus type is defined
+    // TODO: add request to create focus session and update user status
+  }
+
+  const startBreak = () => {
+    restState();
+    // TODO: if break length is 0, let user know there's no break left
+    // TODO: add request to update focus session and user status
+  }
+
+  const endBreak = () => {
+    backToFocusState();
+    // TODO: add request to update focus session and user status
+  }
+
+  const completeSession = () => {
+    idleState();
+    // TODO: add request to update focus session and user status
+  }
 
   return (
     <div className="focus-timer-container">
@@ -70,19 +114,20 @@ const FocusTimer = () => {
               className="decre-button">
               -
             </button>
-            <input
-              type="number"
-              value={focusLength}
-              onChange={(e) => setFocusLength(Number(e.target.value))}
-              className="focus-input"
-            />
+            <div className="input-container">
+              <input
+                type="number"
+                value={focusLength}
+                onChange={(e) => setFocusLength(Number(e.target.value))}
+              />
+              <span className="input-label">min</span>
+            </div>
             <button
               onClick={incrementFocusLength}
               className="incre-button">
               +
             </button>
           </div>
-
 
           <div className="break-length-options">
             Break:
@@ -91,18 +136,21 @@ const FocusTimer = () => {
               className="decre-button">
               -
             </button>
-            <input
-              type="number"
-              value={breakLength}
-              onChange={(e) => setBreakLength(Number(e.target.value))}
-              className="input"
-            />
+            <div className="input-container">
+              <input
+                type="number"
+                value={breakLength}
+                onChange={(e) => setBreakLength(Number(e.target.value))}
+              />
+              <span className="input-label">min</span>
+            </div>
             <button
               onClick={incrementBreakLength}
               className="incre-button">
               +
             </button>
           </div>
+          
           <div className="dropdown-menu">
             Type:
             <DropdownMenu>
@@ -116,7 +164,7 @@ const FocusTimer = () => {
             </DropdownMenu>
           </div>
           <div className="button-container">
-            <Button className="button1" onClick={focusState}>Start Focus</Button>
+            <Button className="button1" onClick={startFocus}>Start Focus</Button>
             <Button className="button2" onClick={focusSettings}>Configure Focus Settings</Button>
           </div>
         </div>
@@ -124,9 +172,18 @@ const FocusTimer = () => {
 
       {currentState === "focus" && (
         <div>
+          <p>Keep it up!</p>
           <p>Time left for this focus session:</p>
-          <button onClick={restState}>Start Break</button>
-          <button onClick={idleState}>End Current Session</button>
+          <CountdownTimer
+            seconds={Math.floor(remainingFocusTime)}
+            onComplete={completeSession}
+            onTimeUpdate={setRemainingFocusTime}
+            paused={focusPaused}
+          />
+          <div className="button-container">
+            <Button className="button1" onClick={startBreak}>Start Break</Button>
+            <Button className="button2" onClick={completeSession}>End Current Session</Button> 
+          </div>
         </div>
       )}
 
@@ -134,8 +191,16 @@ const FocusTimer = () => {
         <div>
           <p>Enjoy your break!</p>
           <p>Time left for this break session:</p>
-          <button onClick={focusState}>Back to Focus Session</button>
-          <button onClick={idleState}>End Current Session</button>
+          <CountdownTimer
+            seconds={Math.floor(remainingBreakTime)}
+            onComplete={endBreak}
+            onTimeUpdate={setRemainingBreakTime}
+            paused={breakPaused}
+          />
+          <div className="button-container">
+            <Button className="button1" onClick={endBreak}>Back to Focus Session</Button>
+            <Button className="button2" onClick={completeSession}>End Current Session</Button> 
+          </div>
         </div>
       )}
     </div>
