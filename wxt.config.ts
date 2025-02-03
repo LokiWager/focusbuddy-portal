@@ -26,7 +26,9 @@ export default defineConfig({
     keepProfileChanges: true,
   },
   manifest: ({ mode }) => {
-    const manifest: UserManifest = {};
+    const manifest: UserManifest = {
+      permissions: ["storage"],
+    };
     if (mode === "development") {
       manifest.content_security_policy = {
         extension_pages:
