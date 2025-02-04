@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
 import { Button } from "@/common/components/ui/button";
-import CountdownTimer from "./countDownTimer";
+import CountdownTimer from "./CountdownTimer";
 
 const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
 
