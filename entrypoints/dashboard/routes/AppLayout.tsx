@@ -10,6 +10,7 @@ export function AppLayout() {
           <NavItem to="/">Home</NavItem>
           <NavItem to="/settings">Settings</NavItem>
           <NavItem to="/blocklist">Blocklist</NavItem>
+          <NavItem to="/Focustimer">Focus Timer</NavItem>
         </div>
       </div>
       <div className="px-5 py-10 flex-1">
