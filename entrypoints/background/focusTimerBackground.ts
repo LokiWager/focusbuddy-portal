@@ -17,8 +17,7 @@ interface Message {
   remainingBreakTime?: number;
 }
 
-// Handle connections from the popup
-chrome.runtime.onConnect.addListener((port) => {
+export function timerListener(port: chrome.runtime.Port) {
   console.log("Popup connected:", port.name);
   ports.push(port);
 
@@ -53,7 +52,7 @@ chrome.runtime.onConnect.addListener((port) => {
       ports.splice(index, 1);
     }
   });
-});
+}
 
 function isMessage(message: unknown): message is Message {
   return typeof message === "object" && message !== null && "type" in message;
@@ -88,7 +87,11 @@ function startTimer() {
       currentState = "idle";
       broadcastMessage({ type: "SESSION_COMPLETE" });
     }
-    broadcastMessage({ type: "TIMER_UPDATE", remainingFocusTime, remainingBreakTime });
+    broadcastMessage({
+      type: "TIMER_UPDATE",
+      remainingFocusTime,
+      remainingBreakTime,
+    });
   }, 1000);
 }
 
