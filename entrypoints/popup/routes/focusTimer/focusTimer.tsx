@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { browser } from "wxt/browser";
 import {
   DropdownMenu,
@@ -11,6 +11,25 @@ import CountdownTimer from "./CountdownTimer";
 
 const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
 
+interface TimerUpdateMessage {
+  type: "TIMER_UPDATE";
+  remainingFocusTime: number;
+  remainingBreakTime: number;
+}
+
+interface SessionCompleteMessage {
+  type: "SESSION_COMPLETE";
+}
+
+interface GetStateResponse {
+  currentState: "idle" | "focus" | "rest";
+  focusLength: number;
+  breakLength: number;
+  focusType: string;
+  remainingFocusTime: number;
+  remainingBreakTime: number;
+}
+
 const FocusTimer = () => {
   const [currentState, setCurrentState] = useState<"idle" | "focus" | "rest">("idle");
   const [focusLength, setFocusLength] = useState<number>(30);
@@ -19,7 +38,41 @@ const FocusTimer = () => {
   const [remainingFocusTime, setRemainingFocusTime] = useState<number>(focusLength * 60); 
   const [remainingBreakTime, setRemainingBreakTime] = useState<number>(breakLength * 60);
   const [startClicked, setStartClicked] = useState<boolean>(false);
+  const [port, setPort] = useState<chrome.runtime.Port | null>(null);
   
+  useEffect(() => {
+    // Connect to the background script
+    const backgroundPort = chrome.runtime.connect();
+    console.log("Connecting to background...");
+    setPort(backgroundPort);
+
+    // Listen for messages from the background
+    backgroundPort.onMessage.addListener((message) => {
+      if (message.type === "STATE_UPDATE") {
+        setCurrentState(message.currentState);
+        setFocusLength(message.focusLength);
+        setBreakLength(message.breakLength);
+        setFocusType(message.focusType);
+        setRemainingFocusTime(message.remainingFocusTime);
+        setRemainingBreakTime(message.remainingBreakTime);
+      } else if (message.type === "TIMER_UPDATE") {
+        setRemainingFocusTime(message.remainingFocusTime);
+        setRemainingBreakTime(message.remainingBreakTime);
+      } else if (message.type === "SESSION_COMPLETE") {
+        setCurrentState("idle");
+      }
+    });
+
+    // Send initial state request
+    backgroundPort.postMessage({ type: "GET_STATE" });
+
+    // Cleanup on component unmount
+    return () => {
+      if (backgroundPort) {
+        backgroundPort.disconnect();
+      }
+    };
+  }, []);
 
   const idleState = () => {
     setCurrentState("idle");
@@ -200,5 +253,18 @@ const FocusTimer = () => {
     </div>
   );
 };
+
+// function isTimerUpdateMessage(message: unknown): message is TimerUpdateMessage {
+//   return (
+//     typeof message === "object" &&
+//     message !== null &&
+//     "type" in message &&
+//     message.type === "TIMER_UPDATE"
+//   );
+// }
+
+// function isSessionCompleteMessage(message: unknown): message is SessionCompleteMessage {
+//   return typeof message === "object" && message !== null && "type" in message && message.type === "SESSION_COMPLETE";
+// }
 
 export default FocusTimer;

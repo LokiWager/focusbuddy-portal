@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "wxt",
-    "react-devtools:popup": "PORT=8097 react-devtools",
+    "react-devtools:popup": "cross-env PORT=8097 react-devtools",
     "react-devtools:dashboard": "PORT=8098 react-devtools",
     "dev:firefox": "wxt -b firefox",
     "build": "wxt build",
@@ -47,6 +47,7 @@
     "@typescript-eslint/parser": "^8.21.0",
     "@vitejs/plugin-react": "^4.3.4",
     "babel-plugin-react-compiler": "19.0.0-beta-decd7b8-20250118",
+    "cross-env": "^7.0.3",
     "eslint": "^9.18.0",
     "eslint-import-resolver-typescript": "^3.7.0",
     "eslint-plugin-import": "^2.31.0",
