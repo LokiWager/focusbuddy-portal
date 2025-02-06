@@ -1,10 +1,10 @@
 let focusTimer: NodeJS.Timeout | null = null;
 let currentState: "idle" | "focus" | "rest" = "idle";
 let focusLength = 30;
-let breakLength = 5;
+let breakLength = 10;
 let focusType = "Choose a focus type";
 let remainingFocusTime = 30 * 60;
-let remainingBreakTime = 5 * 60;
+let remainingBreakTime = 10 * 60;
 const ports: chrome.runtime.Port[] = [];
 
 interface Message {
@@ -33,7 +33,10 @@ export function timerListener(port: chrome.runtime.Port) {
         startFocusSession(message);
         break;
       case "START_BREAK":
-        startBreakSession(message);
+        startBreakSession();
+        break;
+      case "END_BREAK":
+        endBreakSession();
         break;
       case "STOP_SESSION":
         stopSession();
@@ -61,17 +64,27 @@ function isMessage(message: unknown): message is Message {
 function startFocusSession(message: Message) {
   currentState = "focus";
   focusLength = message.focusLength ?? 30;
-  breakLength = message.breakLength ?? 5;
+  breakLength = message.breakLength ?? 10;
   focusType = message.focusType ?? "Choose a focus type";
   remainingFocusTime = focusLength * 60;
   remainingBreakTime = breakLength * 60;
   startTimer();
+  broadcastMessage(getCurrentState());
+  console.log("StartFocusSession", message);
 }
 
-function startBreakSession(message: Message) {
+function startBreakSession() {
   currentState = "rest";
-  remainingBreakTime = (message.remainingBreakTime ?? 5) * 60;
   startTimer();
+  broadcastMessage(getCurrentState());
+  console.log("StartBreakSession");
+}
+
+function endBreakSession() {
+  currentState = "focus";
+  startTimer();
+  broadcastMessage(getCurrentState());
+  console.log("EndBreakSession");
 }
 
 function startTimer() {
@@ -82,10 +95,11 @@ function startTimer() {
       remainingFocusTime--;
     } else if (currentState === "rest" && remainingBreakTime > 0) {
       remainingBreakTime--;
+    } else if (currentState === "rest" && remainingBreakTime <= 0) {
+      currentState = "focus";
+      remainingFocusTime--;
     } else {
-      stopTimer();
-      currentState = "idle";
-      broadcastMessage({ type: "SESSION_COMPLETE" });
+      stopSession();
     }
     broadcastMessage({
       type: "TIMER_UPDATE",
@@ -98,7 +112,7 @@ function startTimer() {
 function stopSession() {
   stopTimer();
   resetState();
-  broadcastMessage({ type: "SESSION_STOPPED" });
+  broadcastMessage({ type: "SESSION_COMPLETE" });
 }
 
 function stopTimer() {
@@ -109,10 +123,10 @@ function stopTimer() {
 function resetState() {
   currentState = "idle";
   focusLength = 30;
-  breakLength = 5;
+  breakLength = 10;
   focusType = "Choose a focus type";
   remainingFocusTime = 30 * 60;
-  remainingBreakTime = 5 * 60;
+  remainingBreakTime = 10 * 60;
 }
 
 function broadcastMessage(message: Message) {

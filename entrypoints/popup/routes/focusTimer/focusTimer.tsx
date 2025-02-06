@@ -7,28 +7,9 @@ import {
   DropdownMenuTrigger,
 } from "@/common/components/ui/dropdown-menu";
 import { Button } from "@/common/components/ui/button";
-import CountdownTimer from "./countdownTimer";
+import CountdownTimer from "./CountdownTimer";
 
 const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
-
-interface TimerUpdateMessage {
-  type: "TIMER_UPDATE";
-  remainingFocusTime: number;
-  remainingBreakTime: number;
-}
-
-interface SessionCompleteMessage {
-  type: "SESSION_COMPLETE";
-}
-
-interface GetStateResponse {
-  currentState: "idle" | "focus" | "rest";
-  focusLength: number;
-  breakLength: number;
-  focusType: string;
-  remainingFocusTime: number;
-  remainingBreakTime: number;
-}
 
 const FocusTimer = () => {
   const [currentState, setCurrentState] = useState<"idle" | "focus" | "rest">(
@@ -48,7 +29,7 @@ const FocusTimer = () => {
 
   useEffect(() => {
     // Connect to the background script
-    const backgroundPort = chrome.runtime.connect();
+    const backgroundPort = chrome.runtime.connect({name: "focusTimer"});
     console.log("Connecting to background...");
     setPort(backgroundPort);
 
@@ -66,6 +47,9 @@ const FocusTimer = () => {
         setRemainingBreakTime(message.remainingBreakTime);
       } else if (message.type === "SESSION_COMPLETE") {
         setCurrentState("idle");
+        setFocusType("Choose a focus type");
+        setFocusLength(30);
+        setBreakLength(10);
       }
     });
 
@@ -134,6 +118,12 @@ const FocusTimer = () => {
     if (focusLength > 0 && focusType != "Choose a focus type") {
       // TODO: check for overlap sessions
       startFocusState();
+      port?.postMessage({
+        type: "START_FOCUS",
+        focusLength,
+        breakLength,
+        focusType,
+      });
       // TODO: add request to create focus session and update user status
       setStartClicked(false);
     }
@@ -141,16 +131,19 @@ const FocusTimer = () => {
 
   const startBreak = () => {
     restState();
+    port?.postMessage({ type: "START_BREAK" });
     // TODO: add request to update focus session and user status
   };
 
   const endBreak = () => {
     backToFocusState();
+    port?.postMessage({ type: "END_BREAK" });
     // TODO: add request to update focus session and user status
   };
 
   const completeSession = () => {
     idleState();
+    port?.postMessage({ type: "STOP_SESSION" });
     // TODO: add request to update focus session and user status
   };
 
@@ -260,7 +253,6 @@ const FocusTimer = () => {
           <CountdownTimer
             seconds={Math.floor(remainingFocusTime)}
             onComplete={completeSession}
-            onTimeUpdate={setRemainingFocusTime}
           />
           <div className="button-container">
             <Button
@@ -284,7 +276,6 @@ const FocusTimer = () => {
           <CountdownTimer
             seconds={Math.floor(remainingBreakTime)}
             onComplete={endBreak}
-            onTimeUpdate={setRemainingBreakTime}
           />
           <div className="button-container">
             <Button className="button1" onClick={endBreak}>
@@ -299,18 +290,5 @@ const FocusTimer = () => {
     </div>
   );
 };
-
-// function isTimerUpdateMessage(message: unknown): message is TimerUpdateMessage {
-//   return (
-//     typeof message === "object" &&
-//     message !== null &&
-//     "type" in message &&
-//     message.type === "TIMER_UPDATE"
-//   );
-// }
-
-// function isSessionCompleteMessage(message: unknown): message is SessionCompleteMessage {
-//   return typeof message === "object" && message !== null && "type" in message && message.type === "SESSION_COMPLETE";
-// }
 
 export default FocusTimer;
