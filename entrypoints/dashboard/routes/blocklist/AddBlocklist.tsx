@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/common/components/ui/select";
+import { toast } from "@/common/hooks/use-toast";
 import { useState } from "react";
 
 export function AddBlocklist(props: {
@@ -26,11 +27,12 @@ export function AddBlocklist(props: {
   );
   const addMutation = useAddBlocklist();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const isValid = newWebsite.length > 0;
 
   return (
     <Popover
       open={isPopoverOpen}
-      onOpenChange={(isOpen) => {
+      onOpenChange={(isOpen: boolean | ((prevState: boolean) => boolean)) => {
         setIsPopoverOpen(isOpen);
         if (isOpen) {
           setNewWebsite("");
@@ -46,11 +48,20 @@ export function AddBlocklist(props: {
           className="grid gap-4"
           onSubmit={async (e) => {
             e.preventDefault();
+            if (!isValid) return;
             const request = {
               domain: newWebsite,
               list_type: newWebsiteType,
             };
-            await addMutation.mutateAsync(request);
+            addMutation.mutate(request, {
+              onError(err) {
+                toast({
+                  variant: "destructive",
+                  title: "Uh oh! Something went wrong.",
+                  description: err.message,
+                });
+              },
+            });
             onAdded(request);
             setIsPopoverOpen(false);
           }}
@@ -76,7 +87,7 @@ export function AddBlocklist(props: {
               ))}
             </SelectContent>
           </Select>
-          <Button type="submit">
+          <Button type="submit" disabled={!isValid || addMutation.isPending}>
             {addMutation.isPending ? "Adding..." : "Add"}
           </Button>
         </form>
