@@ -33,7 +33,7 @@ export function Blocklist() {
           }}
         />
       </div>
-      <BlockListTable data={filteredData} />
+      <BlockListTable data={filteredData} userId="test" />
     </div>
   );
 }

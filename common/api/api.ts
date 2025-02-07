@@ -84,3 +84,33 @@ export function useAddBlocklist() {
   });
   return mutation;
 }
+
+export function useDeleteBlocklist() {
+  const client = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async ({userId , blocklistId }: { userId: string; blocklistId: string }) => {
+      const response = await fetch(
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist/${userId}/${blocklistId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.status === 400) {
+        throw new Error("Invalid Blocklist ID");
+      }
+      if (response.status === 404) {
+        throw new Error("Blocklist entry not found");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to delete blocklist entry");
+      }
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["blocklist", "test"] });
+    },
+  });
+  return mutation;
+}
