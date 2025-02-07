@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { browser } from "wxt/browser";
-import FocusTimer from "./routes/focusTimer/focusTimer";
-import BlockList from "./routes/blocklist/blocklist";
+import FocusTimer from "./routes/focusTimer/FocusTimer";
+import BlockList from "./routes/blocklist/BlockList";
 import "./style.css"; // Import the CSS file
 
 const DASHBOARD_URL = browser.runtime.getURL("/dashboard.html");
