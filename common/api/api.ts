@@ -75,6 +75,15 @@ export function useAddBlocklist() {
           body: JSON.stringify(data),
         }
       );
+      if (response.status === 400) {
+        throw new Error("Invalid website url, please enter a valid URL");
+      }
+      if (response.status === 409) {
+        throw new Error("Website already exists in the blocklist");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to add website to blocklist, please try again");
+      }
       const responseData: AddBlockListResponse = await response.json();
       return responseData;
     },
@@ -88,9 +97,17 @@ export function useAddBlocklist() {
 export function useDeleteBlocklist() {
   const client = useQueryClient();
   const mutation = useMutation({
-    mutationFn: async ({userId , blocklistId }: { userId: string; blocklistId: string }) => {
+    mutationFn: async ({
+      userId,
+      blocklistId,
+    }: {
+      userId: string;
+      blocklistId: string;
+    }) => {
       const response = await fetch(
-        `${import.meta.env.WXT_API_BASE_URI}/blocklist/${userId}/${blocklistId}`,
+        `${
+          import.meta.env.WXT_API_BASE_URI
+        }/blocklist/${userId}/${blocklistId}`,
         {
           method: "DELETE",
           headers: {
