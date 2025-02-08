@@ -2,17 +2,14 @@ import { useState } from "react";
 import { BlockListModel, useDeleteBlocklist } from "@/common/api/api";
 import { getIconURLFromDomain } from "@/common/core/blocklist";
 
-export function BlockListTable(props: {
-  data: BlockListModel[];
-  userId: string;
-}) {
-  const { data, userId } = props;
+export function BlockListTable(props: { data: BlockListModel[] }) {
+  const { data } = props;
   const deleteBlocklist = useDeleteBlocklist();
   const [selectedItem, setSelectedItem] = useState<BlockListModel | null>(null);
 
   const handleDelete = () => {
     if (selectedItem) {
-      deleteBlocklist.mutate({ userId, blocklistId: selectedItem.id });
+      deleteBlocklist.mutate({ blocklistId: selectedItem.id });
       setSelectedItem(null); // Close modal after deletion
     }
   };

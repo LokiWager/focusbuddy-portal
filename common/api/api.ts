@@ -67,17 +67,14 @@ export interface AddBlockListResponse {
 
 export function useAddBlocklist() {
   const client = useQueryClient();
-  const auth = useLoggedInAuth();
+  const authFetch = useAuthFetch();
+
   const mutation = useMutation({
     mutationFn: async (data: { domain: string; list_type: BlockListType }) => {
-      const response = await fetch(
+      const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/blocklist`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Auth-Token": auth.user.jwt,
-          },
           body: JSON.stringify(data),
         }
       );
@@ -94,7 +91,7 @@ export function useAddBlocklist() {
       return responseData;
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["blocklist", "test"] });
+      client.invalidateQueries({ queryKey: ["blocklist"] });
     },
   });
   return mutation;
@@ -102,23 +99,14 @@ export function useAddBlocklist() {
 
 export function useDeleteBlocklist() {
   const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
   const mutation = useMutation({
-    mutationFn: async ({
-      userId,
-      blocklistId,
-    }: {
-      userId: string;
-      blocklistId: string;
-    }) => {
-      const response = await fetch(
-        `${
-          import.meta.env.WXT_API_BASE_URI
-        }/blocklist/${userId}/${blocklistId}`,
+    mutationFn: async ({ blocklistId }: { blocklistId: string }) => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist/${blocklistId}`,
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
         }
       );
       if (response.status === 400) {
@@ -132,7 +120,7 @@ export function useDeleteBlocklist() {
       }
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["blocklist", "test"] });
+      client.invalidateQueries({ queryKey: ["blocklist"] });
     },
   });
   return mutation;
@@ -148,7 +136,7 @@ export function useLogin() {
   const mutation = useMutation({
     mutationFn: async (data: { token: string }) => {
       const response = await fetch(
-        `${import.meta.env.WXT_API_BASE_URI}/user/token`,
+        `${import.meta.env.WXT_API_BASE_URI}/user/login`,
         {
           method: "POST",
           headers: {
