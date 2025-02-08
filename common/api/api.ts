@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { useAuthFetch, useLoggedInAuth } from "../components/auth/AuthContext";
 import {
   getBlocklistFromLocalStorage,
   setBlocklistToLocalStorage,
 } from "../core/blocklist";
+import { setJWTToLocalStorage } from "../core/user";
 
 export const BlockListType = {
   Work: 0,
@@ -27,21 +29,23 @@ interface BlocklistsResponse {
 }
 
 export function useListBlocklist() {
-  const userID = "test";
   const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
   useEffect(() => {
     getBlocklistFromLocalStorage().then((blocklist) => {
-      client.setQueryData<BlocklistsResponse>(["blocklist", userID], {
+      client.setQueryData<BlocklistsResponse>(["blocklist"], {
         blocklist: blocklist,
         status: "success",
       });
     });
   }, [client]);
+
   const blocklists = useQuery<BlocklistsResponse>({
-    queryKey: ["blocklist", userID],
+    queryKey: ["blocklist"],
     queryFn: async () => {
-      const response = await fetch(
-        `${import.meta.env.WXT_API_BASE_URI}/blocklist/${userID}`
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist`
       );
       const data: BlocklistsResponse = await response.json();
       return data;
@@ -63,15 +67,14 @@ export interface AddBlockListResponse {
 
 export function useAddBlocklist() {
   const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
   const mutation = useMutation({
     mutationFn: async (data: { domain: string; list_type: BlockListType }) => {
-      const response = await fetch(
-        `${import.meta.env.WXT_API_BASE_URI}/blocklist/test`,
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
           body: JSON.stringify(data),
         }
       );
@@ -88,7 +91,7 @@ export function useAddBlocklist() {
       return responseData;
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["blocklist", "test"] });
+      client.invalidateQueries({ queryKey: ["blocklist"] });
     },
   });
   return mutation;
@@ -96,23 +99,14 @@ export function useAddBlocklist() {
 
 export function useDeleteBlocklist() {
   const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
   const mutation = useMutation({
-    mutationFn: async ({
-      userId,
-      blocklistId,
-    }: {
-      userId: string;
-      blocklistId: string;
-    }) => {
-      const response = await fetch(
-        `${
-          import.meta.env.WXT_API_BASE_URI
-        }/blocklist/${userId}/${blocklistId}`,
+    mutationFn: async ({ blocklistId }: { blocklistId: string }) => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist/${blocklistId}`,
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
         }
       );
       if (response.status === 400) {
@@ -126,7 +120,39 @@ export function useDeleteBlocklist() {
       }
     },
     onSuccess: () => {
-      client.invalidateQueries({ queryKey: ["blocklist", "test"] });
+      client.invalidateQueries({ queryKey: ["blocklist"] });
+    },
+  });
+  return mutation;
+}
+
+export interface LoginResponse {
+  jwt: string;
+  picture: string;
+  email: string;
+}
+
+export function useLogin() {
+  const mutation = useMutation({
+    mutationFn: async (data: { token: string }) => {
+      const response = await fetch(
+        `${import.meta.env.WXT_API_BASE_URI}/user/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token: data.token }),
+        }
+      );
+      if (response.status === 400 || !response.ok) {
+        throw new Error("Failed to login, please try again");
+      }
+      const responseData: LoginResponse = await response.json();
+      return responseData;
+    },
+    onSuccess: (data) => {
+      setJWTToLocalStorage(data);
     },
   });
   return mutation;

@@ -4,16 +4,19 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { HashRouter } from "react-router";
 import { AppRoutes } from "./AppRoutes.tsx";
+import { AuthProvider } from "@/common/components/auth/AuthContext.tsx";
 
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <HashRouter>
-        <AppRoutes />
-      </HashRouter>
-    </QueryClientProvider>
-    <Toaster />
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <HashRouter>
+          <AppRoutes />
+        </HashRouter>
+      </QueryClientProvider>
+      <Toaster />
+    </AuthProvider>
   </React.StrictMode>
 );
