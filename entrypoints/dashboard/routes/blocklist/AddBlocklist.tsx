@@ -61,9 +61,11 @@ export function AddBlocklist(props: {
                   description: err.message,
                 });
               },
+              onSuccess() {
+                onAdded(request);
+                setIsPopoverOpen(false);
+              },
             });
-            onAdded(request);
-            setIsPopoverOpen(false);
           }}
         >
           <Input
