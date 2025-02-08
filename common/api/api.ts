@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useLoggedInAuth } from "../components/auth/AuthContext";
+import { useAuthFetch, useLoggedInAuth } from "../components/auth/AuthContext";
 import {
   getBlocklistFromLocalStorage,
   setBlocklistToLocalStorage,
@@ -30,7 +30,8 @@ interface BlocklistsResponse {
 
 export function useListBlocklist() {
   const client = useQueryClient();
-  const auth = useLoggedInAuth();
+  const authFetch = useAuthFetch();
+
   useEffect(() => {
     getBlocklistFromLocalStorage().then((blocklist) => {
       client.setQueryData<BlocklistsResponse>(["blocklist"], {
@@ -39,17 +40,12 @@ export function useListBlocklist() {
       });
     });
   }, [client]);
+
   const blocklists = useQuery<BlocklistsResponse>({
     queryKey: ["blocklist"],
     queryFn: async () => {
-      const response = await fetch(
-        `${import.meta.env.WXT_API_BASE_URI}/blocklist`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-Auth-Token": auth.user.jwt,
-          },
-        }
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist`
       );
       const data: BlocklistsResponse = await response.json();
       return data;

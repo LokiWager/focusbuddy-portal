@@ -47,3 +47,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+export function useAuthFetch(): typeof fetch {
+  const auth = useLoggedInAuth();
+  return (input: RequestInfo | URL, init?: RequestInit) => {
+    return fetch(input, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Token": auth.user.jwt,
+        ...init?.headers,
+      },
+    });
+  };
+}
