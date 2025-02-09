@@ -17,21 +17,21 @@ export function getIconURLFromDomain(domain: string): string {
 }
 
 export async function addToLocalStorage(value: BlockListModel): Promise<void> {
-  const blocklist = await getBlocklistFromLocalStorage();
+  const blocklist = (await getBlocklistFromLocalStorage()) || [];
   blocklist.push(value);
   await setBlocklistToLocalStorage(blocklist);
 }
 
 export async function removeFromLocalStorage(id: string): Promise<void> {
-  const blocklist = await getBlocklistFromLocalStorage();
+  const blocklist = (await getBlocklistFromLocalStorage()) || [];
   const newBlocklist = blocklist.filter((item) => item.id !== id);
   await setBlocklistToLocalStorage(newBlocklist);
 }
 
 export async function getBlocklistFromLocalStorage(): Promise<
-  BlockListModel[]
+  BlockListModel[] | null
 > {
-  return (await storage.getItem<BlockListModel[]>(BLOCKLIST_STORAGE_KEY)) || [];
+  return await storage.getItem<BlockListModel[]>(BLOCKLIST_STORAGE_KEY);
 }
 
 export async function setBlocklistToLocalStorage(

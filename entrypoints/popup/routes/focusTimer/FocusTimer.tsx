@@ -9,7 +9,7 @@ import {
 import { Button } from "@/common/components/ui/button";
 import CountdownTimer from "./CountdownTimer";
 
-const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
+const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/");
 
 const FocusTimer = () => {
   const [currentState, setCurrentState] = useState<"idle" | "focus" | "rest">(
@@ -29,7 +29,7 @@ const FocusTimer = () => {
 
   useEffect(() => {
     // Connect to the background script
-    const backgroundPort = chrome.runtime.connect({name: "focusTimer"});
+    const backgroundPort = chrome.runtime.connect({ name: "focusTimer" });
     console.log("Connecting to background...");
     setPort(backgroundPort);
 

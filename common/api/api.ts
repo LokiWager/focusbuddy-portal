@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { useAuthFetch, useLoggedInAuth } from "../components/auth/AuthContext";
+import { useAuthFetch } from "../components/auth/AuthContext";
 import {
   getBlocklistFromLocalStorage,
   setBlocklistToLocalStorage,
@@ -34,10 +34,12 @@ export function useListBlocklist() {
 
   useEffect(() => {
     getBlocklistFromLocalStorage().then((blocklist) => {
-      client.setQueryData<BlocklistsResponse>(["blocklist"], {
-        blocklist: blocklist,
-        status: "success",
-      });
+      if (blocklist !== null) {
+        client.setQueryData<BlocklistsResponse>(["blocklist"], {
+          blocklist: blocklist,
+          status: "success",
+        });
+      }
     });
   }, [client]);
 
