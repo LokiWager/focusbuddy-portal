@@ -1,4 +1,5 @@
 import { useLogin } from "@/common/api/api";
+import { useAuth } from "@/common/components/auth/AuthContext";
 import { Button } from "@/common/components/ui/button";
 import { toast } from "@/common/hooks/use-toast";
 import { useState } from "react";
@@ -8,6 +9,7 @@ export function Home() {
   const [isShowingLogin, setIsShowingLogin] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userPicture, setUserPicture] = useState<string | null>(null);
+  const authContext = useAuth();
 
   return (
     <div>
@@ -36,6 +38,7 @@ export function Home() {
                 setIsShowingLogin(true);
                 setUserEmail(data.email);
                 setUserPicture(data.picture);
+                authContext.setUser(data);
               },
             });
           });
