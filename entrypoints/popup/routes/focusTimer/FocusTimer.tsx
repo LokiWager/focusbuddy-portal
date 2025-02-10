@@ -42,6 +42,11 @@ const FocusTimer = () => {
         setFocusType(message.focusType);
         setRemainingFocusTime(message.remainingFocusTime);
         setRemainingBreakTime(message.remainingBreakTime);
+        // Store information for BlockList to use
+        chrome.storage.local.set({
+          focusState: message.currentState,
+          focusType: message.focusType,
+        });
       } else if (message.type === "TIMER_UPDATE") {
         setRemainingFocusTime(message.remainingFocusTime);
         setRemainingBreakTime(message.remainingBreakTime);
@@ -50,6 +55,10 @@ const FocusTimer = () => {
         setFocusType("Choose a focus type");
         setFocusLength(30);
         setBreakLength(10);
+        chrome.storage.local.set({
+          focusState: "idle",
+          focusType: "Choose a focus type",
+        });
       }
     });
 
