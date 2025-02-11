@@ -41,6 +41,8 @@ export function AddBlocklist(props: {
       });
     }
     onAdded(requests);
+    setNewWebsite("");  
+    setSelectedTypes([]);  
     setIsModalOpen(false);
   };
 
@@ -53,7 +55,7 @@ export function AddBlocklist(props: {
         <div className="bg-white p-6 rounded-lg shadow-2xl w-96">
         <center><h2 className="text-lg font-semibold">New Website</h2></center>
           <form className="grid gap-4 mt-4" onSubmit={handleSubmit}>
-            <label className="text-base font-medium text-gray-700">Address:</label>
+            <label className="text-base font-medium text-gray-700">URL:</label>
             <Input value={newWebsite} onChange={(e) => setNewWebsite(e.target.value)} />
 
             <label className="text-base font-medium text-gray-700 mt-1">Add to list:</label>
