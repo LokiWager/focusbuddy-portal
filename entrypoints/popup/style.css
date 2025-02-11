@@ -6,19 +6,18 @@ a {
   color: #000000;
 }
 
-
 /* ------------------------------------------------------------
     Below is the style for App.tsx
 ------------------------------------------------------------*/
-.app-container{
-	background-color: #F5F5F5;
+.app-container {
+  background-color: #f5f5f5;
+  width: 320px;
 }
 
 .app-links {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 5px; 
   position: relative;
 }
 
@@ -26,7 +25,7 @@ a {
   display: flex;
   align-items: center;
   font-weight: bold;
-  font-family: 'Cursive', 'Arial', sans-serif;
+  font-family: "Cursive", "Arial", sans-serif;
   font-size: 1.2rem;
   color: #000000;
   padding: 10px;
@@ -37,7 +36,7 @@ a {
 .focus-buddy-link img {
   width: 55px;
   height: 55px;
-  margin-right: 8px; 
+  margin-right: 8px;
 }
 
 .settings-icon {
@@ -60,67 +59,66 @@ a {
   justify-content: center;
   align-items: center;
   gap: 40px;
-    margin-bottom: 16px;
-    outline: none;
-  }
-  
-.tab-button {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	justify-content: center;
-	padding: 4px;
-	border: 2px solid transparent;
-	border-radius: 8px;
-	transition: all 0.3s ease-in-out;
-	font-weight: bold;
-	font-family: 'Cursive', 'Arial', sans-serif;
-	font-size: 1.0rem;
-	color: #000000;
+  margin-bottom: 16px;
+  outline: none;
 }
-  
+
+.tab-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  font-weight: bold;
+  font-family: "Cursive", "Arial", sans-serif;
+  font-size: 1rem;
+  color: #000000;
+}
+
 .tab-button img {
-	width: 50px;
-	height: 50px;
-	object-fit: contain;
-	border-radius: 8px;
-	margin-bottom: 8px; 
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 8px;
+  margin-bottom: 8px;
 }
 
 .tab-button:hover img {
-	opacity: 0.8;
+  opacity: 0.8;
 }
 
 /* Active tab */
 .active-tab {
-	border: none;
-	text-decoration: underline;
-	text-decoration-color: #C1CEF8;
-	text-decoration-thickness: 4px;
+  border: none;
+  text-decoration: underline;
+  text-decoration-color: #c1cef8;
+  text-decoration-thickness: 4px;
 }
 
 /* Display area */
 .content-container {
-	width: 320px;
-	height: 320px;
-	border-radius: 8px;
-	overflow: hidden;
-	margin-top: 25px;
+  width: 320px;
+  height: 320px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 25px;
 }
-
 
 /* ------------------------------------------------------------
     Below is the style for focusTimer.tsx
 ------------------------------------------------------------*/
 .focus-timer-container p {
-	font-weight: bold;
-  font-family: 'Cursive', 'Arial', sans-serif;
-  font-size: 1.0rem;
-	text-align: center;
+  font-weight: bold;
+  font-family: "Cursive", "Arial", sans-serif;
+  font-size: 1rem;
+  text-align: center;
   color: #000000;
 }
 
-	/* Style the main container to ensure all elements are aligned vertically */
+/* Style the main container to ensure all elements are aligned vertically */
 .idle-state-content {
   display: flex;
   flex-direction: column;
@@ -131,7 +129,7 @@ a {
 .focus-length-options,
 .break-length-options,
 .dropdown-menu {
-	font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
@@ -159,12 +157,12 @@ a {
 
 /* Styling for the decrement button */
 .decre-button {
-  background-color: #C1CEF8;
+  background-color: #c1cef8;
 }
 
 /* Styling for the increment button */
 .incre-button {
-  background-color: #F2CDCD;
+  background-color: #f2cdcd;
 }
 
 .input-container {
@@ -174,7 +172,7 @@ a {
   width: 80px;
   height: 30px;
   text-align: center;
-  background-color: #ECE7E7;
+  background-color: #ece7e7;
   border: 2px solid #ccc;
   border-radius: 8px;
 }
@@ -187,7 +185,7 @@ a {
   color: red;
   font-size: 10px;
   display: block;
-  width: 100%; 
+  width: 100%;
   text-align: center;
 }
 
@@ -226,20 +224,20 @@ input[type="number"] {
 
 /* Style the dropdown trigger */
 .dropdown-menu button {
-  background-color: #ECE7E7;
+  background-color: #ece7e7;
   color: black;
   padding: 8px 12px;
   border-radius: 8px;
   cursor: pointer;
   font-size: 14px;
-	border: 2px solid #ccc;
-	font-family: 'Arial', sans-serif;
-	font-size: 13px;
-	text-align: center;
+  border: 2px solid #ccc;
+  font-family: "Arial", sans-serif;
+  font-size: 13px;
+  text-align: center;
 }
 
 .dropdown-menu button:hover {
-  background-color: #ECE7E7;
+  background-color: #ece7e7;
 }
 
 .button-container {
@@ -250,7 +248,7 @@ input[type="number"] {
   margin-top: 15px;
 }
 .button1 {
-  background-color: #C7E3EB;
+  background-color: #c7e3eb;
   color: black;
   padding: 10px 20px;
   border: none;
@@ -261,11 +259,11 @@ input[type="number"] {
 }
 
 .button1:hover {
-  background-color: #C1CEF8;
+  background-color: #c1cef8;
 }
 
 .button2 {
-  background-color: #F8E6E6;
+  background-color: #f8e6e6;
   color: black;
   padding: 10px 20px;
   border: none;
@@ -276,11 +274,10 @@ input[type="number"] {
 }
 
 .button2:hover {
-  background-color: #F2CDCD;
+  background-color: #f2cdcd;
 }
 
 .countdown-timer {
   margin-top: 20px;
   margin-bottom: 20px;
 }
-

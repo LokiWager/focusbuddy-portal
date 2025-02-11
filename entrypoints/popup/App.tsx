@@ -4,25 +4,11 @@ import FocusTimer from "./routes/focusTimer/FocusTimer";
 import BlockList from "./routes/blocklist/BlockList";
 import "./style.css"; // Import the CSS file
 
-const DASHBOARD_URL = browser.runtime.getURL("/dashboard.html");
-const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/settings");
-
 function App() {
   const [activeTab, setActiveTab] = useState<"tab1" | "tab2">("tab1");
 
   return (
-    <div className="app-container">
-      {/* Links */}
-      <p className="app-links">
-        <a href={DASHBOARD_URL} target="_blank" rel="noreferrer" className="focus-buddy-link">
-          <img src="/icon/logo.png" alt="Focus Buddy" />
-          Focus Buddy
-        </a>
-        <a href={SETTINGS_URL} target="_blank" rel="noreferrer">
-          <img src="/icon/settings-icon.png" alt="Focus Buddy" className="settings-icon" />
-        </a>
-      </p>
-
+    <div>
       {/* Tab buttons */}
       <div className="tabs-container">
         <button
