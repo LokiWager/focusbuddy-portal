@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { BlockListModel, useDeleteBlocklist } from "@/common/api/api";
 import { getIconURLFromDomain } from "@/common/core/blocklist";
+import { Button } from "@/common/components/ui/button";
 
 export function BlockListTable(props: { data: BlockListModel[] }) {
   const { data } = props;
@@ -31,41 +32,39 @@ export function BlockListTable(props: { data: BlockListModel[] }) {
                 {item.domain}
               </span>
             </div>
-            <button
-              className="bg-white border border-gray-400 text-gray-600 px-3 py-1 rounded transition 
-                         hover:border-gray-600 hover:text-black disabled:bg-gray-100 disabled:text-gray-500"
+            <Button
+              variant="outline"
               onClick={() => setSelectedItem(item)}
               disabled={deleteBlocklist.isPending}
             >
               Remove
-            </button>
+            </Button>
           </div>
         ))}
       </div>
       {selectedItem && (
-        <div className="fixed inset-0 flex items-center justify-center bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-            <h2 className="text-lg font-semibold">Are you sure?</h2>
-            <p className="mt-2 text-gray-700">
+        <div className="fixed inset-0 flex items-center justify-center text-center">
+          <div className="bg-white p-6 rounded-lg shadow-2xl w-96">
+            <h2 className="text-base">
               Are you sure you want to remove{" "}
               <strong>{selectedItem.domain}</strong> from the list?
-            </p>
+            </h2>
             <div className="mt-4 flex flex-col gap-2">
-              <button
-                className="bg-red-300 hover:bg-red-400 text-black px-4 py-2 rounded"
+              <Button
+                className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded"
                 onClick={handleDelete}
                 disabled={deleteBlocklist.isPending}
               >
                 {deleteBlocklist.isPending
                   ? "Removing..."
-                  : "Yes, unblock this site"}
-              </button>
-              <button
-                className="bg-gray-300 hover:bg-gray-400 text-black px-4 py-2 rounded"
+                  : "Yes, remove it from list"}
+              </Button>
+              <Button
+                className="bg-gray-200 hover:bg-gray-100 text-black px-4 py-2 rounded"
                 onClick={() => setSelectedItem(null)}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         </div>
