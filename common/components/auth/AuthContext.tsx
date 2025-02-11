@@ -1,6 +1,6 @@
 import { LoginResponse } from "@/common/api/api";
 import { getJWTFromLocalStorage } from "@/common/core/user";
-import { createContext, use, useEffect, useState } from "react";
+import { createContext, use, useEffect, useMemo, useState } from "react";
 
 interface AuthContextValue {
   user: LoginResponse | null;
@@ -41,11 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, setUser, ready }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const value = useMemo(() => ({ user, setUser, ready }), [user, ready]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuthFetch(): typeof fetch {
