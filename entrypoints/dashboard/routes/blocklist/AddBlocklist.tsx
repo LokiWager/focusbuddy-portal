@@ -52,8 +52,6 @@ export function AddBlocklist(props: {
       description: `${newWebsite} is now on your blocklist.`,
     });
     onAdded(requests);
-    setNewWebsite("");  
-    setSelectedTypes([]);  
     setIsModalOpen(false);
   };
 
