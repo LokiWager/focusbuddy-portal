@@ -2,7 +2,7 @@ import { BlockListType, useAddBlocklist } from "@/common/api/api";
 import { Button } from "@/common/components/ui/button";
 import { Input } from "@/common/components/ui/input";
 import { toast } from "@/common/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function AddBlocklist(props: {
   defaultListType: BlockListType;
@@ -10,10 +10,17 @@ export function AddBlocklist(props: {
 }) {
   const { defaultListType, onAdded } = props;
   const [newWebsite, setNewWebsite] = useState("");
-  const [selectedTypes, setSelectedTypes] = useState<BlockListType[]>([defaultListType]);
+  const [selectedTypes, setSelectedTypes] = useState<BlockListType[]>([]);
   const addMutation = useAddBlocklist();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const isValid = newWebsite.length > 0;
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setNewWebsite("");
+      setSelectedTypes([defaultListType]); 
+    }
+  }, [isModalOpen, defaultListType]);
 
   const toggleBlocklistType = (type: BlockListType) => {
     setSelectedTypes((prev) =>
@@ -40,9 +47,11 @@ export function AddBlocklist(props: {
         },
       });
     }
+    toast({
+      title: "Added!",
+      description: `${newWebsite} is now on your blocklist.`,
+    });
     onAdded(requests);
-    setNewWebsite("");  
-    setSelectedTypes([]);  
     setIsModalOpen(false);
   };
 
