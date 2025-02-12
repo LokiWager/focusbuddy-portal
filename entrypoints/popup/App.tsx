@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { browser } from "wxt/browser";
-import FocusTimer from "./routes/focusTimer/FocusTimer";
 import BlockList from "./routes/blocklist/BlockList";
+import FocusTimer from "./routes/focusTimer/FocusTimer";
 import "./style.css"; // Import the CSS file
 
 function App() {
