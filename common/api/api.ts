@@ -15,7 +15,32 @@ export const BlockListType = {
   Permanent: 4,
 } as const;
 
+export const FocusSessionType = {
+  Work: 0,
+  Study: 1,
+  Personal: 2,
+  Other: 3,
+} as const;
+
+export const FocusSessionStatus = {
+  Upcoming: 0,
+  Ongoing: 1,
+  Paused: 2,
+  Completed: 3
+} as const;
+
+export const UserStatus = {
+  Work: 0,
+  Study: 1,
+  Personal: 2,
+  Other: 3,
+  Idle: 4,
+} as const;
+
 export type BlockListType = (typeof BlockListType)[keyof typeof BlockListType];
+export type FocusSessionType = (typeof FocusSessionType)[keyof typeof FocusSessionType];
+export type FocusSessionStatus = (typeof FocusSessionStatus)[keyof typeof FocusSessionStatus];
+export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
 
 export interface BlockListModel {
   id: string;
@@ -26,6 +51,17 @@ export interface BlockListModel {
 interface BlocklistsResponse {
   blocklist: BlockListModel[];
   status: string;
+}
+
+interface FocusSessionModel {
+  session_status: FocusSessionStatus;
+  start_date?: string;
+  start_time?: string;
+  duration?: number;
+  break_duration?: number;
+  session_type?: FocusSessionType;
+  remaining_focus_time: number;
+  remaining_break_time: number;
 }
 
 export function useListBlocklist() {
@@ -63,6 +99,11 @@ export function useListBlocklist() {
 }
 
 export interface AddBlockListResponse {
+  status: string;
+  id: string;
+}
+
+export interface EditFocusSessionResponse {
   status: string;
   id: string;
 }
@@ -155,6 +196,115 @@ export function useLogin() {
     },
     onSuccess: (data) => {
       setJWTToLocalStorage(data);
+    },
+  });
+  return mutation;
+}
+
+export function useUpdateUserStatus() {
+  const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
+  const mutation = useMutation({
+    mutationFn: async (status: UserStatus) => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/user`,
+        {
+          method: "PUT",
+          body: JSON.stringify({ status }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to update user status, please try again");
+      }
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["user"] });
+    },
+  });
+  return mutation;
+}
+
+export function useAddFocusSession() {
+  // const client = useQueryClient();
+  // const authFetch = useAuthFetch();
+
+  const mutation = useMutation({
+    mutationFn: async ( data: FocusSessionModel ) => {
+      // const response = await authFetch(
+      const response = await fetch(
+        `${import.meta.env.WXT_API_BASE_URI}/focustimer`,
+        {
+          method: "POST",
+          body: JSON.stringify(data),
+        }
+      );
+      if (response.status === 409) {
+        throw new Error("Focus session conflict with upcoming sessions");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to add focus session, please try again");
+      }
+      const responseData: EditFocusSessionResponse = await response.json();
+      return responseData;
+    },
+    onSuccess: () => {
+      // client.invalidateQueries({ queryKey: ["focustimer"] });
+    },
+  });
+  return mutation;
+}
+
+export function useUpdateFocusSession() {
+  const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
+  const mutation = useMutation({
+    mutationFn: async ({ sessionId, data }: { sessionId: string; data: FocusSessionModel }) => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`,
+        {
+          method: "PUT",
+          body: JSON.stringify(data),
+        }
+      );
+      if (response.status === 400) {
+        throw new Error("No fields to update");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to update focus session, please try again");
+      }
+      const responseData: EditFocusSessionResponse = await response.json();
+      return responseData;
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["focustimer"] });
+    },
+  });
+  return mutation;
+}
+
+export function useDeleteFocusSession() {
+  const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
+  const mutation = useMutation({
+    mutationFn: async ({ sessionId }: { sessionId: string }) => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`,
+        {
+          method: "DELETE",
+        }
+      );
+      if (response.status === 404) {
+        throw new Error("Focus session not found");
+      }
+      if (!response.ok) {
+        throw new Error("Failed to delete focus session");
+      }
+    },
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["focustimer"] });
     },
   });
   return mutation;
