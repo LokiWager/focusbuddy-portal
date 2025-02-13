@@ -30,8 +30,8 @@ const FocusTimer = () => {
   const [sessionId, setSessionId] = useState<string>("");
 
   const addMutation = useAddFocusSession();
-  // const updateMutation = useUpdateFocusSession();
-  // const updateStatusMutation = useUpdateUserStatus();
+  const updateMutation = useUpdateFocusSession();
+  const updateStatusMutation = useUpdateUserStatus();
 
   useEffect(() => {
     // Connect to the background script
@@ -48,6 +48,7 @@ const FocusTimer = () => {
         setFocusType(message.focusType);
         setRemainingFocusTime(message.remainingFocusTime);
         setRemainingBreakTime(message.remainingBreakTime);
+        setSessionId(message.sessionId);
       } else if (message.type === "TIMER_UPDATE") {
         setRemainingFocusTime(message.remainingFocusTime);
         setRemainingBreakTime(message.remainingBreakTime);
@@ -122,15 +123,6 @@ const FocusTimer = () => {
   const startFocus = () => {
     setStartClicked(true);
     if (focusLength > 0 && focusType != "Choose a focus type") {
-      // TODO: check for overlap sessions
-      startFocusState();
-      port?.postMessage({
-        type: "START_FOCUS",
-        focusLength,
-        breakLength,
-        focusType,
-      });
-      // TODO: add request to create focus session and update user status
       const now = new Date();
       const formattedDate = now.toLocaleDateString("en-US", {
         month: "2-digit",
@@ -161,92 +153,109 @@ const FocusTimer = () => {
           onSuccess(data) {
             console.log(data);
             setSessionId(data.id);
+
+            startFocusState();
+            port?.postMessage({
+              type: "START_FOCUS",
+              focusLength,
+              breakLength,
+              focusType,
+              sessionId: data.id,
+            });
           }
         }
       );
-      // updateStatusMutation.mutate(
-      //   UserStatus[focusType as keyof typeof UserStatus],
-      //   {
-      //     onError(err) {
-      //       console.error(err);
-      //     },
-      //   }
-      // );
+      updateStatusMutation.mutate(
+        UserStatus[focusType as keyof typeof UserStatus],
+        {
+          onError(err) {
+            console.error(err);
+          },
+        }
+      );
       
       setStartClicked(false);
     }
   };
 
   const startBreak = () => {
-    restState();
-    port?.postMessage({ type: "START_BREAK" });
-    // TODO: add request to update focus session and user status
-    // const request = {
-    //   session_status: FocusSessionStatus.Paused,
-    //   remaining_focus_time: remainingFocusTime,
-    //   remaining_break_time: remainingBreakTime,
-    // };
-    // updateMutation.mutate({ sessionId, data: request }, {
-    //   onError(err) {
-    //     console.error(err);
-    //   },
-    // });
-    // updateStatusMutation.mutate(
-    //   UserStatus.Idle,
-    //   {
-    //     onError(err) {
-    //       console.error(err);
-    //     },
-    //   }
-    // );
+    const request = {
+      session_status: FocusSessionStatus.Paused,
+      remaining_focus_time: remainingFocusTime,
+      remaining_break_time: remainingBreakTime,
+    };
+    updateMutation.mutate({ sessionId, data: request }, {
+      onError(err) {
+        console.error(err);
+      },
+      onSuccess(data) {
+        console.log(data);
+        restState();
+        port?.postMessage({ type: "START_BREAK" });
+      }
+    });
+    updateStatusMutation.mutate(
+      UserStatus.Idle,
+      {
+        onError(err) {
+          console.error(err);
+        },
+      }
+    );
   };
 
   const endBreak = () => {
-    backToFocusState();
-    port?.postMessage({ type: "END_BREAK" });
-    // TODO: add request to update focus session and user status
-    // const request = {
-    //   session_status: FocusSessionStatus.Ongoing,
-    //   remaining_focus_time: remainingFocusTime,
-    //   remaining_break_time: remainingBreakTime,
-    // };
-    // updateMutation.mutate({ sessionId, data: request }, {
-    //   onError(err) {
-    //     console.error(err);
-    //   },
-    // });
-    // updateStatusMutation.mutate(
-    //   UserStatus[focusType as keyof typeof UserStatus],
-    //   {
-    //     onError(err) {
-    //       console.error(err);
-    //     },
-    //   }
-    // );
+    const request = {
+      session_status: FocusSessionStatus.Ongoing,
+      remaining_focus_time: remainingFocusTime,
+      remaining_break_time: remainingBreakTime,
+    };
+    updateMutation.mutate({ sessionId, data: request }, {
+      onError(err) {
+        console.error(err);
+      },
+      onSuccess(data) {
+        console.log(data);
+        backToFocusState();
+        port?.postMessage({ type: "END_BREAK" });
+      }
+    });
+    updateStatusMutation.mutate(
+      UserStatus[focusType as keyof typeof UserStatus],
+      {
+        onError(err) {
+          console.error(err);
+        },
+      }
+    );
   };
 
-  const completeSession = () => {
-    idleState();
-    port?.postMessage({ type: "STOP_SESSION" });
-    // TODO: add request to update focus session and user status
-    // const request = {
-    //   session_status: FocusSessionStatus.Completed,
-    //   remaining_focus_time: remainingFocusTime,
-    //   remaining_break_time: remainingBreakTime,
-    // };
-    // updateMutation.mutate({ sessionId, data: request }, {
-    //   onError(err) {
-    //     console.error(err);
-    //   },
-    // });
-    // updateStatusMutation.mutate(
-    //   UserStatus.Idle,
-    //   {
-    //     onError(err) {
-    //       console.error(err);
-    //     },
-    //   }
-    // );
+  const completeSession = () => { 
+    const request = {
+      session_status: FocusSessionStatus.Completed,
+      remaining_focus_time: remainingFocusTime,
+      remaining_break_time: remainingBreakTime,
+    };
+    updateMutation.mutate({ sessionId, data: request }, {
+      onError(err) {
+        console.error(err);
+      },
+      onSuccess(data) {
+        console.log(data);
+        idleState();
+        port?.postMessage({ type: "STOP_SESSION" });
+      }
+    });
+    if (currentState !== "rest") {
+      updateStatusMutation.mutate(
+        UserStatus.Idle,
+        {
+          onError(err) {
+            console.error(err);
+          },
+        }
+      );
+    }
   };
 
   return (

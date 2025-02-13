@@ -5,6 +5,7 @@ let breakLength = 10;
 let focusType = "Choose a focus type";
 let remainingFocusTime = 30 * 60;
 let remainingBreakTime = 10 * 60;
+let sessionId = "";
 const ports: chrome.runtime.Port[] = [];
 
 interface Message {
@@ -15,6 +16,7 @@ interface Message {
   focusType?: string;
   remainingFocusTime?: number;
   remainingBreakTime?: number;
+  sessionId?: string;
 }
 
 export function timerListener(port: chrome.runtime.Port) {
@@ -68,6 +70,7 @@ function startFocusSession(message: Message) {
   focusType = message.focusType ?? "Choose a focus type";
   remainingFocusTime = focusLength * 60;
   remainingBreakTime = breakLength * 60;
+  sessionId = message.sessionId ?? "";
   startTimer();
   broadcastMessage(getCurrentState());
   console.log("StartFocusSession", message);
@@ -127,6 +130,7 @@ function resetState() {
   focusType = "Choose a focus type";
   remainingFocusTime = 30 * 60;
   remainingBreakTime = 10 * 60;
+  sessionId = "";
 }
 
 function broadcastMessage(message: Message) {
@@ -148,5 +152,6 @@ function getCurrentState(): Message {
     focusType,
     remainingFocusTime,
     remainingBreakTime,
+    sessionId,
   };
 }

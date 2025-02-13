@@ -208,10 +208,10 @@ export function useUpdateUserStatus() {
   const mutation = useMutation({
     mutationFn: async (status: UserStatus) => {
       const response = await authFetch(
-        `${import.meta.env.WXT_API_BASE_URI}/user`,
+        `${import.meta.env.WXT_API_BASE_URI}/user/status`,
         {
           method: "PUT",
-          body: JSON.stringify({ status }),
+          body: JSON.stringify({ user_status: status }),
         }
       );
       if (!response.ok) {
@@ -226,13 +226,12 @@ export function useUpdateUserStatus() {
 }
 
 export function useAddFocusSession() {
-  // const client = useQueryClient();
-  // const authFetch = useAuthFetch();
+  const client = useQueryClient();
+  const authFetch = useAuthFetch();
 
   const mutation = useMutation({
     mutationFn: async ( data: FocusSessionModel ) => {
-      // const response = await authFetch(
-      const response = await fetch(
+      const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/focustimer`,
         {
           method: "POST",
@@ -249,7 +248,7 @@ export function useAddFocusSession() {
       return responseData;
     },
     onSuccess: () => {
-      // client.invalidateQueries({ queryKey: ["focustimer"] });
+      client.invalidateQueries({ queryKey: ["focustimer"] });
     },
   });
   return mutation;
