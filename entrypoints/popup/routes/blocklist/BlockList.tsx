@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { browser } from "wxt/browser";
-import { BlockListType } from "@/common/api/api"; 
+import { BlockListType, useAddBlocklist, useDeleteBlocklist } from "@/common/api/api"; 
 import { getBlocklistFromLocalStorage, getIconURLFromDomain, parseDomainFromURL } from "@/common/core/blocklist";
 import { Button } from "@/common/components/ui/button";
+import { toast } from "@/common/hooks/use-toast";
 
 const BLOCKLIST_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
 
@@ -12,6 +13,10 @@ const Blocklist = () => {
   const [currentState, setCurrentState] = useState<string>("idle");
   const [focusType, setFocusType] = useState<string>("None");
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
+  const [blocklistId, setBlocklistId] = useState<string | null>(null);
+
+  const addMutation = useAddBlocklist();
+  const deleteMutation = useDeleteBlocklist();
 
   useEffect(() => {
     // Fetch the active tab
@@ -23,12 +28,8 @@ const Blocklist = () => {
       }
     });
     browser.storage.local.get(["focusState", "focusType"]).then((data) => {
-      if (data.focusState) {
-        setCurrentState((data.focusState as string) ?? "idle");
-      }
-      if (data.focusType) {
-        setFocusType((data.focusType as string) ?? "None");
-      }
+      setCurrentState((data.focusState as string) ?? "idle");
+      setFocusType((data.focusType as string) ?? "None");
     });
   }, []);
   useEffect(() => {
@@ -39,14 +40,21 @@ const Blocklist = () => {
           blocklist.some(
             (entry) =>
               entry.domain === currentSite &&
-              entry.list_type === convertBlocklistType() // Matches the current focus type
+              entry.list_type === convertBlocklistType()
           );
-  
-        const isSitePermanentBlocked = blocklist.some(
-          (entry) => entry.domain === currentSite && entry.list_type === BlockListType.Permanent
-        );
-  
-        setIsBlocked(isSiteInFocusList || isSitePermanentBlocked);
+
+        const matchingEntry = blocklist.find(
+            (entry) =>
+              entry.domain === currentSite &&
+              entry.list_type === BlockListType.Permanent
+          );
+        if (isSiteInFocusList || matchingEntry) {
+          setIsBlocked(true);
+          setBlocklistId(matchingEntry?.id || null);
+        } else {
+          setIsBlocked(false);
+          setBlocklistId(null);
+        }
       } else {
         setIsBlocked(false);
       }
@@ -68,7 +76,56 @@ const Blocklist = () => {
       default:
         return BlockListType.Other;
     }
-  }
+  };
+  const toggleBlockStatus = async () => {
+    if (!currentSite) return;
+
+    if (isBlocked && blocklistId) {
+      // Remove from permanent blocklist
+      deleteMutation.mutate(
+        { blocklistId },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Removed!",
+              description: `${currentSite} has been unblocked.`,
+            });
+            setIsBlocked(false);
+            setBlocklistId(null);
+          },
+          onError: (err) => {
+            toast({
+              variant: "destructive",
+              title: "Error removing site",
+              description: err.message,
+            });
+          },
+        }
+      );
+    } else {
+      // Add to permanent blocklist
+      addMutation.mutate(
+        { domain: currentSite, list_type: BlockListType.Permanent },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Added!",
+              description: `${currentSite} is now blocked.`,
+            });
+            setIsBlocked(true);
+          },
+          onError: (err) => {
+            toast({
+              variant: "destructive",
+              title: "Error adding site",
+              description: err.message,
+            });
+          },
+        }
+      );
+    }
+  };
+
   return (
     <div className="flex flex-col justify-between min-h-[275px]">
       <div className="grid place-items-center">
@@ -90,9 +147,11 @@ const Blocklist = () => {
       </div>
 
       <div className="button-container flex justify-center">
-            {currentSite && (<Button className="button1">
-              Block This Site
-            </Button>)}
+          {currentSite && currentState !== "focus" && (
+            <Button className="button1" onClick={toggleBlockStatus}>
+              {isBlocked ? "Unblock This Site" : "Block This Site"}
+            </Button>
+          )}
             <Button className="button2" onClick={toBlocklist}>
               Change Blocked Sites
             </Button>
