@@ -142,8 +142,8 @@ const FocusTimer = () => {
         duration: focusLength,
         break_duration: breakLength,
         session_type: FocusSessionType[focusType as keyof typeof FocusSessionType],
-        remaining_focus_time: remainingFocusTime,
-        remaining_break_time: remainingBreakTime,
+        remaining_focus_time: focusLength * 60,
+        remaining_break_time: breakLength * 60,
       };
       addMutation.mutate( request,
         {
@@ -230,7 +230,7 @@ const FocusTimer = () => {
     );
   };
 
-  const completeSession = () => { 
+  const completeSession = () => {
     const request = {
       session_status: FocusSessionStatus.Completed,
       remaining_focus_time: remainingFocusTime,
@@ -363,7 +363,7 @@ const FocusTimer = () => {
           <p>Time left for this focus session:</p>
           <CountdownTimer
             seconds={Math.floor(remainingFocusTime)}
-            onComplete={completeSession}
+            onComplete={idleState}
           />
           <div className="button-container">
             <Button
@@ -386,7 +386,7 @@ const FocusTimer = () => {
           <p>Time left for this break session:</p>
           <CountdownTimer
             seconds={Math.floor(remainingBreakTime)}
-            onComplete={endBreak}
+            onComplete={backToFocusState}
           />
           <div className="button-container">
             <Button className="button1" onClick={endBreak}>

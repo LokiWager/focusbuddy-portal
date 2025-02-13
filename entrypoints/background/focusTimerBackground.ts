@@ -1,3 +1,4 @@
+import { FocusSessionStatus, UserStatus, updateFocusSession, updateUserStatus } from "@/common/api/api";
 let focusTimer: NodeJS.Timeout | null = null;
 let currentState: "idle" | "focus" | "rest" = "idle";
 let focusLength = 30;
@@ -99,10 +100,48 @@ function startTimer() {
     } else if (currentState === "rest" && remainingBreakTime > 0) {
       remainingBreakTime--;
     } else if (currentState === "rest" && remainingBreakTime <= 0) {
-      currentState = "focus";
-      remainingFocusTime--;
+      const request = {
+        session_status: FocusSessionStatus.Ongoing,
+        remaining_break_time: remainingBreakTime,
+      };
+      updateFocusSession(sessionId, request)
+        .then((data) => {
+          console.log("Session updated successfully:", data);
+          currentState = "focus";
+          remainingFocusTime--;
+        })
+        .catch((err) => {
+          console.error("Error updating session:", err);
+        });
+      updateUserStatus({user_status: UserStatus[focusType as keyof typeof UserStatus]})
+        .then((data) => {
+          console.log("User status updated successfully:", data);
+        })
+        .catch((err) => {
+          console.error("Error updating user status:", err);
+        });
     } else {
-      stopSession();
+      const request = {
+        session_status: FocusSessionStatus.Completed,
+        remaining_focus_time: remainingFocusTime,
+      };
+      updateFocusSession(sessionId, request)
+        .then((data) => {
+          console.log("Session updated successfully:", data);
+          stopSession();
+        })
+        .catch((err) => {
+          console.error("Error updating session:", err);
+        });
+      if (currentState !== "rest") {
+        updateUserStatus({user_status: UserStatus.Idle})
+          .then((data) => {
+            console.log("User status updated successfully:", data);
+          })
+          .catch((err) => {
+            console.error("Error updating user status:", err);
+          });
+      }
     }
     broadcastMessage({
       type: "TIMER_UPDATE",

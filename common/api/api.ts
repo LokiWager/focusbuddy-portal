@@ -5,7 +5,7 @@ import {
   getBlocklistFromLocalStorage,
   setBlocklistToLocalStorage,
 } from "../core/blocklist";
-import { setJWTToLocalStorage } from "../core/user";
+import { setJWTToLocalStorage, getJWTFromLocalStorage } from "../core/user";
 
 export const BlockListType = {
   Work: 0,
@@ -307,4 +307,60 @@ export function useDeleteFocusSession() {
     },
   });
   return mutation;
+}
+
+export function updateFocusSession(sessionId: string, data: any): Promise<any> {
+  return getJWTFromLocalStorage().then((user) => {
+    if (!user?.jwt) {
+      return Promise.reject(new Error("No JWT token found"));
+    }
+
+    return fetch(`${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Token": user.jwt,
+      },
+      body: JSON.stringify(data),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to update session");
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.error("Error updating focus session:", error);
+        throw error;
+      });
+  });
+}
+
+export function updateUserStatus(data: any): Promise<any> {
+  return getJWTFromLocalStorage().then((user) => {
+    if (!user?.jwt) {
+      return Promise.reject(new Error("No JWT token found"));
+    }
+
+    return fetch(`${import.meta.env.WXT_API_BASE_URI}/user/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Token": user.jwt,
+      },
+      body: JSON.stringify(data),
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to update user status");
+        }
+        return response.json();
+      })
+      .catch((error) => {
+        console.error("Error updating user status:", error);
+        throw error;
+      });
+  });
 }
