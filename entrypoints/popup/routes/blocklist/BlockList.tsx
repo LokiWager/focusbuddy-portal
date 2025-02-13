@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { browser } from "wxt/browser";
-import { BlockListType, useListBlocklist } from "@/common/api/api"; // Ensure the correct path
-import { getIconURLFromDomain, parseDomainFromURL } from "@/common/core/blocklist";
+import { BlockListType } from "@/common/api/api"; 
+import { getBlocklistFromLocalStorage, getIconURLFromDomain, parseDomainFromURL } from "@/common/core/blocklist";
 import { Button } from "@/common/components/ui/button";
+
 const BLOCKLIST_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
 
 const Blocklist = () => {
@@ -11,7 +12,6 @@ const Blocklist = () => {
   const [currentState, setCurrentState] = useState<string>("idle");
   const [focusType, setFocusType] = useState<string>("None");
   const [isBlocked, setIsBlocked] = useState<boolean>(false);
-  //const { blocklists } = useListBlocklist();
 
   useEffect(() => {
     // Fetch the active tab
@@ -31,48 +31,70 @@ const Blocklist = () => {
       }
     });
   }, []);
-  /*useEffect(() => {
-    if (currentState === "focus" && blocklists) {
-      const validFocusType = (Object.keys(BlockListType) as Array<keyof typeof BlockListType>).includes(focusType as keyof typeof BlockListType)
-        ? (focusType as keyof typeof BlockListType)
-        : "Work"; // Default to "Work" if invalid
+  useEffect(() => {
+    getBlocklistFromLocalStorage().then((blocklist) => {
+      if (blocklist !== null) {
+        const isSiteInFocusList = 
+          currentState === "focus" &&
+          blocklist.some(
+            (entry) =>
+              entry.domain === currentSite &&
+              entry.list_type === convertBlocklistType() // Matches the current focus type
+          );
   
-      const siteBlocked = blocklists.some(
-        (entry) =>
-          entry.domain === currentSite &&
-          (entry.list_type === BlockListType[validFocusType] || entry.list_type === BlockListType.Permanent) // Check focusType or Permanent
-      );
+        const isSitePermanentBlocked = blocklist.some(
+          (entry) => entry.domain === currentSite && entry.list_type === BlockListType.Permanent
+        );
   
-      setIsBlocked(siteBlocked);
-    } else {
-      setIsBlocked(false);
-    }
-  }, [currentSite, focusType, currentState, blocklists]);*/
+        setIsBlocked(isSiteInFocusList || isSitePermanentBlocked);
+      } else {
+        setIsBlocked(false);
+      }
+    });
+  });  
   const toBlocklist = () => {
     window.open(BLOCKLIST_URL, "_blank");
   };
+  const convertBlocklistType = () => {
+    switch (focusType) {
+      case "Work":
+        return BlockListType.Work;
+      case "Study":
+        return BlockListType.Study;
+      case "Personal":
+        return BlockListType.Personal;
+      case "Other":
+        return BlockListType.Other;
+      default:
+        return BlockListType.Other;
+    }
+  }
   return (
-    <div className="grid place-items-center h-16">
-      {currentSite && (
-        <img
-          src={favicon}
-          alt="favicon"
-          className="w-10 h-10"
-          onError={(e) => (e.currentTarget.src = "/default-favicon.png")}
-        />
-      )}
-      <div className="grid place-items-center text-lg mt-2">
-        <p className='font-bold'>{currentSite}</p>
-        <p>Current Focus State: <strong>{currentState}</strong></p>
-        <p>Focus Type: <strong>{focusType}</strong></p>
-        <p>Blocked: <strong>{isBlocked ? "Yes" : "No"}</strong></p>
+    <div className="flex flex-col justify-between min-h-[275px]">
+      <div className="grid place-items-center">
+        {currentSite && (
+          <div className="flex flex-col items-center">
+            <img
+              src={favicon}
+              alt="favicon"
+              className="w-10 h-10 mt-4"
+              onError={(e) => (e.currentTarget.src = "/default-favicon.png")}
+            />
+            <div className="grid place-items-center text-lg">
+              <p className="font-bold">{currentSite}</p>
+              <p>{isBlocked ? "Blocked" : "Not Blocked"}</p>
+            </div>
+          </div>
+
+        )}
       </div>
-      <div className="button-container">
-            <Button className="button1">
+
+      <div className="button-container flex justify-center">
+            {currentSite && (<Button className="button1">
               Block This Site
-            </Button>
+            </Button>)}
             <Button className="button2" onClick={toBlocklist}>
-              Edit Block List
+              Change Blocked Sites
             </Button>
       </div>
     </div>
