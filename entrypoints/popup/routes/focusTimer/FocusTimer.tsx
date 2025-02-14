@@ -66,6 +66,10 @@ const FocusTimer = () => {
           focusState: "idle",
           focusType: "Choose a focus type",
         });
+        chrome.storage.local.set({
+          focusState: "idle",
+          focusType: "Choose a focus type",
+        });
       }
     });
 

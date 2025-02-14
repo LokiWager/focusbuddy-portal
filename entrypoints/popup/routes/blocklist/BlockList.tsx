@@ -160,7 +160,37 @@ const Blocklist = () => {
               Change Blocked Sites
             </Button>
       </div>
+    <div className="flex flex-col justify-between min-h-[275px]">
+      <div className="grid place-items-center">
+        {currentSite && (
+          <div className="flex flex-col items-center">
+            <img
+              src={favicon}
+              alt="favicon"
+              className="w-10 h-10 mt-4"
+              onError={(e) => (e.currentTarget.src = "/default-favicon.png")}
+            />
+            <div className="grid place-items-center text-lg">
+              <p className="font-bold">{currentSite}</p>
+              <p>{isBlocked ? "Blocked" : "Not Blocked"}</p>
+            </div>
+          </div>
+
+        )}
+      </div>
+
+      <div className="button-container flex justify-center">
+          {currentSite && currentState !== "focus" && (
+            <Button className="button1" onClick={toggleBlockStatus}>
+              {isBlocked ? "Unblock This Site" : "Block This Site"}
+            </Button>
+          )}
+            <Button className="button2" onClick={toBlocklist}>
+              Change Blocked Sites
+            </Button>
+      </div>
     </div>
+  </div>
   );
 };
 
