@@ -32,7 +32,23 @@ const Blocklist = () => {
       setFocusType((data.focusType as string) ?? "None");
     });
   }, []);
+
   useEffect(() => {
+    const convertBlocklistType = () => {
+      switch (focusType) {
+        case "Work":
+          return BlockListType.Work;
+        case "Study":
+          return BlockListType.Study;
+        case "Personal":
+          return BlockListType.Personal;
+        case "Other":
+          return BlockListType.Other;
+        default:
+          return BlockListType.Other;
+      }
+    };
+
     getBlocklistFromLocalStorage().then((blocklist) => {
       if (blocklist !== null) {
         const isSiteInFocusList = 
@@ -59,24 +75,12 @@ const Blocklist = () => {
         setIsBlocked(false);
       }
     });
-  });  
+  }, [currentSite, currentState, focusType, isBlocked]); 
+
   const toBlocklist = () => {
     window.open(BLOCKLIST_URL, "_blank");
   };
-  const convertBlocklistType = () => {
-    switch (focusType) {
-      case "Work":
-        return BlockListType.Work;
-      case "Study":
-        return BlockListType.Study;
-      case "Personal":
-        return BlockListType.Personal;
-      case "Other":
-        return BlockListType.Other;
-      default:
-        return BlockListType.Other;
-    }
-  };
+
   const toggleBlockStatus = async () => {
     if (!currentSite) return;
 
