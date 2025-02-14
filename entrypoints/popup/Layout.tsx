@@ -12,7 +12,7 @@ export function Layout(props: { children: ReactNode }) {
   return (
     <div className="app-container">
       {/* Links */}
-      <p className="app-links">
+      <div className="app-links">
         <a
           href={DASHBOARD_URL}
           target="_blank"
@@ -33,7 +33,7 @@ export function Layout(props: { children: ReactNode }) {
         ) : (
           <Login />
         )}
-      </p>
+      </div>
       {props.children}
     </div>
   );

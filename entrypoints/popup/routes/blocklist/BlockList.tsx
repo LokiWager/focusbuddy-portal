@@ -1,13 +1,21 @@
 import { useState, useEffect } from "react";
 import { browser } from "wxt/browser";
-import { BlockListType, useAddBlocklist, useDeleteBlocklist } from "@/common/api/api"; 
-import { getBlocklistFromLocalStorage, getIconURLFromDomain, parseDomainFromURL } from "@/common/core/blocklist";
+import {
+  BlockListType,
+  useAddBlocklist,
+  useDeleteBlocklist,
+} from "@/common/api/api";
+import {
+  getBlocklistFromLocalStorage,
+  getIconURLFromDomain,
+  parseDomainFromURL,
+} from "@/common/core/blocklist";
 import { Button } from "@/common/components/ui/button";
 import { toast } from "@/common/hooks/use-toast";
 
 const BLOCKLIST_URL = browser.runtime.getURL("/dashboard.html#/blocklist");
 
-const Blocklist = () => {
+export function Blocklist() {
   const [currentSite, setCurrentSite] = useState<string>("");
   const [favicon, setFavicon] = useState<string>("");
   const [currentState, setCurrentState] = useState<string>("idle");
@@ -24,7 +32,7 @@ const Blocklist = () => {
       if (tabs.length > 0 && tabs[0].url) {
         const domain = new URL(tabs[0].url).origin; // Get base domain
         setCurrentSite(parseDomainFromURL(tabs[0].url));
-        setFavicon(getIconURLFromDomain(domain))
+        setFavicon(getIconURLFromDomain(domain));
       }
     });
     browser.storage.local.get(["focusState", "focusType"]).then((data) => {
@@ -51,7 +59,7 @@ const Blocklist = () => {
 
     getBlocklistFromLocalStorage().then((blocklist) => {
       if (blocklist !== null) {
-        const isSiteInFocusList = 
+        const isSiteInFocusList =
           currentState === "focus" &&
           blocklist.some(
             (entry) =>
@@ -60,10 +68,10 @@ const Blocklist = () => {
           );
 
         const matchingEntry = blocklist.find(
-            (entry) =>
-              entry.domain === currentSite &&
-              entry.list_type === BlockListType.Permanent
-          );
+          (entry) =>
+            entry.domain === currentSite &&
+            entry.list_type === BlockListType.Permanent
+        );
         if (isSiteInFocusList || matchingEntry) {
           setIsBlocked(true);
           setBlocklistId(matchingEntry?.id || null);
@@ -75,7 +83,7 @@ const Blocklist = () => {
         setIsBlocked(false);
       }
     });
-  }, [currentSite, currentState, focusType, isBlocked]); 
+  }, [currentSite, currentState, focusType, isBlocked]);
 
   const toBlocklist = () => {
     window.open(BLOCKLIST_URL, "_blank");
@@ -146,22 +154,19 @@ const Blocklist = () => {
               <p>{isBlocked ? "Blocked" : "Not Blocked"}</p>
             </div>
           </div>
-
         )}
       </div>
 
       <div className="button-container flex justify-center">
-          {currentSite && currentState !== "focus" && (
-            <Button className="button1" onClick={toggleBlockStatus}>
-              {isBlocked ? "Unblock This Site" : "Block This Site"}
-            </Button>
-          )}
-            <Button className="button2" onClick={toBlocklist}>
-              Change Blocked Sites
-            </Button>
+        {currentSite && currentState !== "focus" && (
+          <Button className="button1" onClick={toggleBlockStatus}>
+            {isBlocked ? "Unblock This Site" : "Block This Site"}
+          </Button>
+        )}
+        <Button className="button2" onClick={toBlocklist}>
+          Change Blocked Sites
+        </Button>
       </div>
     </div>
   );
-};
-
-export default Blocklist;
+}
