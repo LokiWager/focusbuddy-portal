@@ -28,8 +28,7 @@ export function Blocklist() {
         />
         <AddBlocklist
           defaultListType={activeTab}
-          onAdded={(added) => {
-            setActiveTab(added.list_type);
+          onAdded={() => {
           }}
         />
       </div>
