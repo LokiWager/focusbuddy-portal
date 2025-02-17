@@ -13,6 +13,7 @@ export function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="blocked" element={<div>BLOCKED</div>} />
       <Route element={<AppLayout />}>
         <Route index element={<Home />} />
         {!!auth.user && (
