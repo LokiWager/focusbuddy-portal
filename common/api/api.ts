@@ -68,6 +68,59 @@ interface FocusSessionModel {
   remaining_break_time: number;
 }
 
+interface AnalyticsTotalsResponse{
+  daily: number;
+  weekly: number;
+  completed_sessions: number;
+}
+
+export interface AnalyticsListWeeklyChartResponse {
+  user_id: string;
+  session_type: FocusSessionType;
+  duration: number;
+}
+
+interface AnalyticsListChartResponse {
+  summary: AnalyticsListWeeklyChartResponse[];
+  status: string;
+}
+
+export function useListAnalyticsDashBoard() {
+  const authFetch = useAuthFetch();
+
+
+  const analyticsTotals = useQuery<AnalyticsTotalsResponse>({
+    queryKey: ['analytics'],
+    queryFn: async () => {const response = await authFetch(`${import.meta.env.WXT_API_BASE_URI}/analytics`)
+    const data: AnalyticsTotalsResponse = await response.json()
+    return data
+  },
+
+});
+  
+  return {daily: analyticsTotals.data?.daily, weekly: analyticsTotals.data?.weekly, completed_sessions: analyticsTotals.data?.completed_sessions }
+
+
+}
+
+export function useListAnalyticsWeeklyChart() {
+  const authFetch = useAuthFetch();
+
+
+  const analyticsWeeklyChart = useQuery<AnalyticsListChartResponse>({
+    queryKey: ['analyticschart'],
+    queryFn: async () => {const response = await authFetch(`${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`)
+    const data: AnalyticsListChartResponse = await response.json()
+    return data
+  },
+
+});
+  
+  return {summary: analyticsWeeklyChart.data?.summary, status: analyticsWeeklyChart.data?.status }
+
+
+}
+
 export function useListBlocklist() {
   const client = useQueryClient();
   const authFetch = useAuthFetch();
