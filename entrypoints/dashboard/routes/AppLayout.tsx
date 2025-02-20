@@ -18,6 +18,7 @@ export function AppLayout() {
             <>
               <NavItem to="/settings">Settings</NavItem>
               <NavItem to="/blocklist">Blocklist</NavItem>
+              <NavItem to="/analytics">Dashboard</NavItem>
             </>
           )}
         </div>
