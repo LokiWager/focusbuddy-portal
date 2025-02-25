@@ -14,17 +14,22 @@ export function AppRoutes() {
     return null;
   }
 
-  return (
-    <Routes>
-      <Route element={<AppLayout />}>
-        <Route index element={<Home />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="blocklist" element={<Blocklist />} />
-        <Route path="focustimer">
-          <Route index element={<Focustimer />} /> 
-          <Route path="addsession" element={<Addsession />} />
-        </Route>
-      </Route>
-    </Routes>
-  );
+return (
+  <Routes>
+    <Route path="blocked" element={<div>BLOCKED</div>} />
+    <Route element={<AppLayout />}>
+      <Route index element={<Home />} />
+      {!!auth.user && (
+        <>
+          <Route path="settings" element={<Settings />} />
+          <Route path="blocklist" element={<Blocklist />} />
+          <Route path="focustimer">
+            <Route index element={<Focustimer />} /> 
+            <Route path="addsession" element={<Addsession />} />
+          </Route>
+        </>
+      )}
+    </Route>
+  </Routes>
+);
 }
