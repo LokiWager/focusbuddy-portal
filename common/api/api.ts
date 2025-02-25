@@ -5,6 +5,12 @@ import {
   getBlocklistFromLocalStorage,
   setBlocklistToLocalStorage,
 } from "../core/blocklist";
+import {
+  getFocusSessionsFromLocalStorage,
+  setFocusSessionsToLocalStorage,
+  setNextFocusSessionToLocalStorage,
+  getNextFocusSessionFromLocalStorage,
+} from "../core/focustimer";
 import { setJWTToLocalStorage, getJWTFromLocalStorage } from "../core/user";
 
 export const BlockListType = {
@@ -249,6 +255,7 @@ export function useAddFocusSession() {
     },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["focustimer"] });
+      client.invalidateQueries({ queryKey: ["nextFocusSession"] }); 
     },
   });
   return mutation;
@@ -278,6 +285,7 @@ export function useUpdateFocusSession() {
     },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["focustimer"] });
+      client.invalidateQueries({ queryKey: ["nextFocusSession"] });
     },
   });
   return mutation;
@@ -304,6 +312,7 @@ export function useDeleteFocusSession() {
     },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["focustimer"] });
+      client.invalidateQueries({ queryKey: ["nextFocusSession"] }); 
     },
   });
   return mutation;
@@ -364,3 +373,116 @@ export function updateUserStatus(data: any): Promise<any> {
       });
   });
 }
+
+
+
+export interface GetFocusSessionResponse {
+  session_id?: string;
+  session_status?: FocusSessionStatus;
+  start_date?: string;
+  start_time?: string;
+  duration?: number;
+  break_duration?: number;
+  session_type?: FocusSessionType;
+  remaining_focus_time?: number;
+  remaining_break_time?: number;
+}
+
+export interface GetAllFocusSessionResponse {
+  focus_sessions?: GetFocusSessionResponse[];
+  status: string;
+}
+
+
+
+export function useGetAllFocusSession(sessionStatus?: FocusSessionStatus) {
+  const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
+  useEffect(() => {
+    getFocusSessionsFromLocalStorage().then((focusSessions) => {
+      const currentData = client.getQueryData<GetAllFocusSessionResponse>(["focustimer", sessionStatus]);
+      if (focusSessions !== null && JSON.stringify(currentData) !== JSON.stringify(focusSessions)) {
+        client.setQueryData<GetAllFocusSessionResponse>(["focustimer", sessionStatus], {
+          focus_sessions: focusSessions,
+          status: "success",
+        });
+      }
+    });
+  }, [client, sessionStatus]);
+
+  const query = useQuery({
+    queryKey: ["focustimer", sessionStatus],
+    queryFn: async () => {
+      const url = sessionStatus !== undefined
+        ? `${import.meta.env.WXT_API_BASE_URI}/focustimer?session_status=${sessionStatus}`
+        : `${import.meta.env.WXT_API_BASE_URI}/focustimer`;
+
+      const response = await authFetch(url, { method: "GET" });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch all focus sessions");
+      }
+
+      return response.json() as Promise<GetAllFocusSessionResponse>;
+    },
+  });
+
+  useEffect(() => {
+    if (query.data?.focus_sessions) {
+      setFocusSessionsToLocalStorage(query.data.focus_sessions);
+    }
+  }, [query.data?.focus_sessions]);
+
+  return query;
+}
+
+
+export interface GetNextFocusSessionResponse {
+  focus_session?: GetFocusSessionResponse | null;
+  status: string;
+}
+ 
+
+export function useGetNextFocusSession() {
+  const client = useQueryClient();
+  const authFetch = useAuthFetch();
+
+  useEffect(() => {
+    getNextFocusSessionFromLocalStorage().then((nextSession) => {
+      if (nextSession !== null) {
+        client.setQueryData<GetNextFocusSessionResponse>(["nextFocusSession"], {
+          focus_session: nextSession,
+          status: "success",
+        });
+      }
+    });
+  }, [client]);
+
+  const query = useQuery({
+    queryKey: ["nextFocusSession"],
+    queryFn: async () => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/focustimer/nextSession`,
+        { method: "GET" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch next focus session");
+      }
+
+      return response.json() as Promise<GetNextFocusSessionResponse>;
+    },
+  });
+
+  useEffect(() => {
+    getNextFocusSessionFromLocalStorage().then((storedNextSession) => {
+      if (query.data?.focus_session !== undefined && JSON.stringify(storedNextSession) !== JSON.stringify(query.data.focus_session)) {
+        setNextFocusSessionToLocalStorage(query.data.focus_session);
+      }
+    });
+  }, [query.data?.focus_session]);
+
+  return query;
+}
+
