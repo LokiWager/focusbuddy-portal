@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BlockList from "./routes/blocklist/BlockList";
+import { Blocklist } from "./routes/blocklist/BlockList";
 import FocusTimer from "./routes/focusTimer/FocusTimer";
 import "./style.css"; // Import the CSS file
 
@@ -28,7 +28,7 @@ function App() {
 
       {/* Component display */}
       <div className="content-container">
-        {activeTab === "tab1" ? <FocusTimer /> : <BlockList />}
+        {activeTab === "tab1" ? <FocusTimer /> : <Blocklist />}
       </div>
     </div>
   );

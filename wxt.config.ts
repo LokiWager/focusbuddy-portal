@@ -27,8 +27,15 @@ export default defineConfig({
   },
   manifest: ({ mode }) => {
     const manifest: UserManifest = {
-      permissions: ["storage", "identity"],
+      permissions: [
+        "storage",
+        "identity",
+        "activeTab",
+        "declarativeNetRequest",
+        "declarativeNetRequestWithHostAccess",
+      ],
       key: "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5xk6XXydfUCK9vM0V0dnm60rigaHf8S4QT8pYlZ6mpqrt+2e1mJ6gVA+2G2wUfyIarfiDnAXMVlaavnfazdyHfjbw5nmZBqswIWtLcQORiodC7k1Ga7r2E8fH0jASansSbTxEItcz3tiaUsrZ4JDc1+Xqgfh1fJ83w3wAjYTE0CY/drLj9R5qAogU+5wLZJjLF4Sj9flACGIR63IQgnMmAIG7kysqleTWdChjAu4licw3L+WJyqkR0mlcszMh1e3m1SxWdRPW09gVCbNZ0gABkqjNpn2Sv13+om1lWTE5m9M7dkwgbP46ktPb0cU01JsagQ9NB8WhIJNph6qrtIPoQIDAQAB",
+      host_permissions: ["<all_urls>"],
       oauth2: {
         client_id:
           "608661990870-kno8u7trt6bhfd04borf9jtghqukcdft.apps.googleusercontent.com",

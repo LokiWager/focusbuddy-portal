@@ -5,14 +5,20 @@ const BLOCKLIST_STORAGE_KEY = "local:blocklist";
 const ICON_SERVICE_URL = "https://www.google.com/s2/favicons?sz=128&domain=";
 
 export function parseDomainFromURL(websiteURL: string): string {
-  if (!websiteURL.includes("://")) {
-    websiteURL = "https://" + websiteURL;
+  try {
+    if (!websiteURL.includes("://")) {
+      websiteURL = "https://" + websiteURL;
+    }
+    const hostname = new URL(websiteURL).hostname;
+    return hostname.startsWith("www.") ? hostname.slice(4) : hostname;
+  } catch (error) {
+    console.error("Invalid URL:", websiteURL, error);
+    return "";  // Return an empty string if the URL is invalid
   }
-  const url = new URL(websiteURL);
-  return url.hostname;
 }
 
 export function getIconURLFromDomain(domain: string): string {
+  if (!domain) return "/default-favicon.png";
   return ICON_SERVICE_URL + parseDomainFromURL(domain);
 }
 

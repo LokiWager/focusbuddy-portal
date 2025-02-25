@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useAuthFetch } from "../components/auth/AuthContext";
 import {
+  addToLocalStorage,
   getBlocklistFromLocalStorage,
+  removeFromLocalStorage,
   setBlocklistToLocalStorage,
 } from "../core/blocklist";
 import {
@@ -32,7 +34,7 @@ export const FocusSessionStatus = {
   Upcoming: 0,
   Ongoing: 1,
   Paused: 2,
-  Completed: 3
+  Completed: 3,
 } as const;
 
 export const UserStatus = {
@@ -44,8 +46,10 @@ export const UserStatus = {
 } as const;
 
 export type BlockListType = (typeof BlockListType)[keyof typeof BlockListType];
-export type FocusSessionType = (typeof FocusSessionType)[keyof typeof FocusSessionType];
-export type FocusSessionStatus = (typeof FocusSessionStatus)[keyof typeof FocusSessionStatus];
+export type FocusSessionType =
+  (typeof FocusSessionType)[keyof typeof FocusSessionType];
+export type FocusSessionStatus =
+  (typeof FocusSessionStatus)[keyof typeof FocusSessionStatus];
 export type UserStatus = (typeof UserStatus)[keyof typeof UserStatus];
 
 export interface BlockListModel {
@@ -68,6 +72,59 @@ interface FocusSessionModel {
   session_type?: FocusSessionType;
   remaining_focus_time: number;
   remaining_break_time: number;
+}
+
+interface AnalyticsTotalsResponse{
+  daily: number;
+  weekly: number;
+  completed_sessions: number;
+}
+
+export interface AnalyticsListWeeklyChartResponse {
+  user_id: string;
+  session_type: FocusSessionType;
+  duration: number;
+}
+
+interface AnalyticsListChartResponse {
+  summary: AnalyticsListWeeklyChartResponse[];
+  status: string;
+}
+
+export function useListAnalyticsDashBoard() {
+  const authFetch = useAuthFetch();
+
+
+  const analyticsTotals = useQuery<AnalyticsTotalsResponse>({
+    queryKey: ['analytics'],
+    queryFn: async () => {const response = await authFetch(`${import.meta.env.WXT_API_BASE_URI}/analytics`)
+    const data: AnalyticsTotalsResponse = await response.json()
+    return data
+  },
+
+});
+  
+  return {daily: analyticsTotals.data?.daily, weekly: analyticsTotals.data?.weekly, completed_sessions: analyticsTotals.data?.completed_sessions }
+
+
+}
+
+export function useListAnalyticsWeeklyChart() {
+  const authFetch = useAuthFetch();
+
+
+  const analyticsWeeklyChart = useQuery<AnalyticsListChartResponse>({
+    queryKey: ['analyticschart'],
+    queryFn: async () => {const response = await authFetch(`${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`)
+    const data: AnalyticsListChartResponse = await response.json()
+    return data
+  },
+
+});
+  
+  return {summary: analyticsWeeklyChart.data?.summary, status: analyticsWeeklyChart.data?.status }
+
+
 }
 
 export function useListBlocklist() {
@@ -107,6 +164,8 @@ export function useListBlocklist() {
 export interface AddBlockListResponse {
   status: string;
   id: string;
+  domain: string;
+  list_type: BlockListType;
 }
 
 export interface EditFocusSessionResponse {
@@ -139,7 +198,12 @@ export function useAddBlocklist() {
       const responseData: AddBlockListResponse = await response.json();
       return responseData;
     },
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      await addToLocalStorage({
+        id: data.id,
+        domain: data.domain,
+        list_type: data.list_type,
+      });
       client.invalidateQueries({ queryKey: ["blocklist"] });
     },
   });
@@ -168,7 +232,8 @@ export function useDeleteBlocklist() {
         throw new Error("Failed to delete blocklist entry");
       }
     },
-    onSuccess: () => {
+    onSuccess: async (data, request) => {
+      await removeFromLocalStorage(request.blocklistId);
       client.invalidateQueries({ queryKey: ["blocklist"] });
     },
   });
@@ -236,7 +301,7 @@ export function useAddFocusSession() {
   const authFetch = useAuthFetch();
 
   const mutation = useMutation({
-    mutationFn: async ( data: FocusSessionModel ) => {
+    mutationFn: async (data: FocusSessionModel) => {
       const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/focustimer`,
         {
@@ -266,7 +331,13 @@ export function useUpdateFocusSession() {
   const authFetch = useAuthFetch();
 
   const mutation = useMutation({
-    mutationFn: async ({ sessionId, data }: { sessionId: string; data: FocusSessionModel }) => {
+    mutationFn: async ({
+      sessionId,
+      data,
+    }: {
+      sessionId: string;
+      data: FocusSessionModel;
+    }) => {
       const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`,
         {
@@ -324,14 +395,17 @@ export function updateFocusSession(sessionId: string, data: any): Promise<any> {
       return Promise.reject(new Error("No JWT token found"));
     }
 
-    return fetch(`${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Auth-Token": user.jwt,
-      },
-      body: JSON.stringify(data),
-    })
+    return fetch(
+      `${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Token": user.jwt,
+        },
+        body: JSON.stringify(data),
+      }
+    )
       .then(async (response) => {
         if (!response.ok) {
           const errorData = await response.json();
