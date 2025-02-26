@@ -1,4 +1,11 @@
-import { FocusSessionStatus, UserStatus, updateFocusSession, updateUserStatus } from "@/common/api/api";
+import {
+  BlockListType,
+  FocusSessionStatus,
+  UserStatus,
+  updateFocusSession,
+  updateUserStatus,
+} from "@/common/api/api";
+import { blockSites, unblockAllSites } from "./blocker";
 let focusTimer: NodeJS.Timeout | null = null;
 let currentState: "idle" | "focus" | "rest" = "idle";
 let focusLength = 30;
@@ -18,6 +25,16 @@ interface Message {
   remainingFocusTime?: number;
   remainingBreakTime?: number;
   sessionId?: string;
+}
+
+function updateCurrentState(state: typeof currentState) {
+  if (currentState !== "focus" && state === "focus") {
+    const type = BlockListType[focusType as keyof typeof BlockListType];
+    blockSites(type);
+  } else if (currentState === "focus" && state !== "focus") {
+    unblockAllSites();
+  }
+  currentState = state;
 }
 
 export function timerListener(port: chrome.runtime.Port) {
@@ -65,27 +82,27 @@ function isMessage(message: unknown): message is Message {
 }
 
 function startFocusSession(message: Message) {
-  currentState = "focus";
   focusLength = message.focusLength ?? 30;
   breakLength = message.breakLength ?? 10;
   focusType = message.focusType ?? "Choose a focus type";
   remainingFocusTime = focusLength * 60;
   remainingBreakTime = breakLength * 60;
   sessionId = message.sessionId ?? "";
+  updateCurrentState("focus");
   startTimer();
   broadcastMessage(getCurrentState());
   console.log("StartFocusSession", message);
 }
 
 function startBreakSession() {
-  currentState = "rest";
+  updateCurrentState("rest");
   startTimer();
   broadcastMessage(getCurrentState());
   console.log("StartBreakSession");
 }
 
 function endBreakSession() {
-  currentState = "focus";
+  updateCurrentState("focus");
   startTimer();
   broadcastMessage(getCurrentState());
   console.log("EndBreakSession");
@@ -107,13 +124,15 @@ function startTimer() {
       updateFocusSession(sessionId, request)
         .then((data) => {
           console.log("Session updated successfully:", data);
-          currentState = "focus";
+          updateCurrentState("focus");
           remainingFocusTime--;
         })
         .catch((err) => {
           console.error("Error updating session:", err);
         });
-      updateUserStatus({user_status: UserStatus[focusType as keyof typeof UserStatus]})
+      updateUserStatus({
+        user_status: UserStatus[focusType as keyof typeof UserStatus],
+      })
         .then((data) => {
           console.log("User status updated successfully:", data);
         })
@@ -134,7 +153,7 @@ function startTimer() {
           console.error("Error updating session:", err);
         });
       if (currentState !== "rest") {
-        updateUserStatus({user_status: UserStatus.Idle})
+        updateUserStatus({ user_status: UserStatus.Idle })
           .then((data) => {
             console.log("User status updated successfully:", data);
           })
@@ -163,13 +182,13 @@ function stopTimer() {
 }
 
 function resetState() {
-  currentState = "idle";
   focusLength = 30;
   breakLength = 10;
   focusType = "Choose a focus type";
   remainingFocusTime = 30 * 60;
   remainingBreakTime = 10 * 60;
   sessionId = "";
+  updateCurrentState("idle");
 }
 
 function broadcastMessage(message: Message) {
