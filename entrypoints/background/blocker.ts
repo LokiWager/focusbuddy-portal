@@ -1,10 +1,27 @@
 import { browser } from "wxt/browser";
+import { getBlocklistFromLocalStorage } from "@/common/core/blocklist";
+import { BlockListType } from "@/common/api/api";
 
-export async function blockSites(
+/**
+ * Blocks all sites of a given type.
+ */
+export async function blockSites(type: BlockListType) {
+  const blocklist = await getBlocklistFromLocalStorage();
+  if (!blocklist) {
+    return;
+  }
+  const patterns = blocklist
+    .filter((item) => item.list_type === type)
+    .map((item) => {
+      return item.domain.replace(/^https?:\/\//, "||");
+    });
+  console.log("[blockSites]", `Blocking ${patterns.length} sites.`);
+  await blockPatterns(patterns);
+}
+
+export async function blockPatterns(
   /**
-   * An array of patterns to block. A pattern is a string that is part of a URL.
-   *
-   * Any URL that contains the pattern will be blocked, achieved by adding `*` before and after the pattern. See https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest#property-RuleCondition-urlFilter for more information.
+   * An array of patterns to block. A pattern is a string that is part of a URL. See https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest#property-RuleCondition-urlFilter for syntax information.
    */
   patterns: string[]
 ) {
@@ -23,7 +40,7 @@ export async function blockSites(
         },
       },
       condition: {
-        urlFilter: `*${pattern}*`,
+        urlFilter: pattern,
         resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
       },
     })
@@ -66,7 +83,7 @@ export function blockDebugger() {
   return {
     block: async () => {
       try {
-        await blockSites(["youtube.com", "xiaohongshu.com"]);
+        await blockPatterns(["||youtube.com", "||xiaohongshu.com"]);
         console.log("Blocked");
       } catch (e) {
         console.error(e);
