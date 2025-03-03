@@ -560,3 +560,30 @@ export function useGetNextFocusSession() {
   return query;
 }
 
+export function getCurrFocusSession(): Promise<any> {
+  return getJWTFromLocalStorage().then((user) => {
+    if (!user?.jwt) {
+      return Promise.reject(new Error("No JWT token found"));
+    }
+
+    return fetch(`${import.meta.env.WXT_API_BASE_URI}/focustimer?session_status=${FocusSessionStatus.Ongoing},${FocusSessionStatus.Paused}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Auth-Token": user.jwt,
+      }
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Failed to fetch focus session");
+        }
+        return response.json() as Promise<GetNextFocusSessionResponse>;;
+      })
+      .catch((error) => {
+        console.error("Error fetching current focus session:", error);
+        throw error;
+      });
+  });
+}
+

@@ -17,7 +17,7 @@ import {
 import { Button } from "@/common/components/ui/button";
 import CountdownTimer from "./CountdownTimer";
 
-const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/");
+const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/Focustimer");
 
 const FocusTimer = () => {
   const [currentState, setCurrentState] = useState<"idle" | "focus" | "rest">(
