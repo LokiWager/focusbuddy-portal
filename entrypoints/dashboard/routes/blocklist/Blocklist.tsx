@@ -26,11 +26,7 @@ export function Blocklist() {
           }}
           autoFocus
         />
-        <AddBlocklist
-          defaultListType={activeTab}
-          onAdded={() => {
-          }}
-        />
+        <AddBlocklist defaultListType={activeTab} onAdded={() => {}} />
       </div>
       <BlockListTable data={filteredData} />
     </div>

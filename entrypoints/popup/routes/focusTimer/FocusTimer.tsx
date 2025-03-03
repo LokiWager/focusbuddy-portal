@@ -1,4 +1,11 @@
-import { FocusSessionType, FocusSessionStatus, UserStatus, useAddFocusSession, useUpdateFocusSession, useUpdateUserStatus } from "@/common/api/api";
+import {
+  FocusSessionType,
+  FocusSessionStatus,
+  UserStatus,
+  useAddFocusSession,
+  useUpdateFocusSession,
+  useUpdateUserStatus,
+} from "@/common/api/api";
 import { useState, useEffect } from "react";
 import { browser } from "wxt/browser";
 import {
@@ -154,30 +161,29 @@ const FocusTimer = () => {
         start_time: formattedTime,
         duration: focusLength,
         break_duration: breakLength,
-        session_type: FocusSessionType[focusType as keyof typeof FocusSessionType],
+        session_type:
+          FocusSessionType[focusType as keyof typeof FocusSessionType],
         remaining_focus_time: focusLength * 60,
         remaining_break_time: breakLength * 60,
       };
-      addMutation.mutate( request,
-        {
-          onError(err) {
-            console.error(err);
-          },
-          onSuccess(data) {
-            console.log(data);
-            setSessionId(data.id);
+      addMutation.mutate(request, {
+        onError(err) {
+          console.error(err);
+        },
+        onSuccess(data) {
+          console.log(data);
+          setSessionId(data.id);
 
-            startFocusState();
-            port?.postMessage({
-              type: "START_FOCUS",
-              focusLength,
-              breakLength,
-              focusType,
-              sessionId: data.id,
-            });
-          }
-        }
-      );
+          startFocusState();
+          port?.postMessage({
+            type: "START_FOCUS",
+            focusLength,
+            breakLength,
+            focusType,
+            sessionId: data.id,
+          });
+        },
+      });
       updateStatusMutation.mutate(
         UserStatus[focusType as keyof typeof UserStatus],
         {
@@ -186,7 +192,7 @@ const FocusTimer = () => {
           },
         }
       );
-      
+
       setStartClicked(false);
     }
   };
@@ -197,24 +203,24 @@ const FocusTimer = () => {
       remaining_focus_time: remainingFocusTime,
       remaining_break_time: remainingBreakTime,
     };
-    updateMutation.mutate({ sessionId, data: request }, {
-      onError(err) {
-        console.error(err);
-      },
-      onSuccess(data) {
-        console.log(data);
-        restState();
-        port?.postMessage({ type: "START_BREAK" });
-      }
-    });
-    updateStatusMutation.mutate(
-      UserStatus.Idle,
+    updateMutation.mutate(
+      { sessionId, data: request },
       {
         onError(err) {
           console.error(err);
         },
+        onSuccess(data) {
+          console.log(data);
+          restState();
+          port?.postMessage({ type: "START_BREAK" });
+        },
       }
     );
+    updateStatusMutation.mutate(UserStatus.Idle, {
+      onError(err) {
+        console.error(err);
+      },
+    });
   };
 
   const endBreak = () => {
@@ -223,16 +229,19 @@ const FocusTimer = () => {
       remaining_focus_time: remainingFocusTime,
       remaining_break_time: remainingBreakTime,
     };
-    updateMutation.mutate({ sessionId, data: request }, {
-      onError(err) {
-        console.error(err);
-      },
-      onSuccess(data) {
-        console.log(data);
-        backToFocusState();
-        port?.postMessage({ type: "END_BREAK" });
+    updateMutation.mutate(
+      { sessionId, data: request },
+      {
+        onError(err) {
+          console.error(err);
+        },
+        onSuccess(data) {
+          console.log(data);
+          backToFocusState();
+          port?.postMessage({ type: "END_BREAK" });
+        },
       }
-    });
+    );
     updateStatusMutation.mutate(
       UserStatus[focusType as keyof typeof UserStatus],
       {
@@ -249,32 +258,32 @@ const FocusTimer = () => {
       remaining_focus_time: remainingFocusTime,
       remaining_break_time: remainingBreakTime,
     };
-    updateMutation.mutate({ sessionId, data: request }, {
-      onError(err) {
-        console.error(err);
-      },
-      onSuccess(data) {
-        console.log(data);
-        idleState();
-        port?.postMessage({ type: "STOP_SESSION" });
+    updateMutation.mutate(
+      { sessionId, data: request },
+      {
+        onError(err) {
+          console.error(err);
+        },
+        onSuccess(data) {
+          console.log(data);
+          idleState();
+          port?.postMessage({ type: "STOP_SESSION" });
+        },
       }
-    });
+    );
     if (currentState !== "rest") {
-      updateStatusMutation.mutate(
-        UserStatus.Idle,
-        {
-          onError(err) {
-            console.error(err);
-          },
-        }
-      );
+      updateStatusMutation.mutate(UserStatus.Idle, {
+        onError(err) {
+          console.error(err);
+        },
+      });
     }
   };
 
   return (
     <div className="focus-timer-container">
       {currentState === "idle" && (
-        <div className="idle-state-content">
+        <div className="idle-state-content" data-testid="idle-state-content">
           <p>You are not in a focus session.</p>
           <div className="focus-length-options">
             Duration:
@@ -325,6 +334,7 @@ const FocusTimer = () => {
             Type:
             <DropdownMenu>
               <DropdownMenuTrigger
+                data-testid="focus-type-dropdown"
                 className={
                   startClicked && focusType === "Choose a focus type"
                     ? "error-border"

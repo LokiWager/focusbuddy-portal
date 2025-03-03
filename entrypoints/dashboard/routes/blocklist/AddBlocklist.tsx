@@ -18,7 +18,7 @@ export function AddBlocklist(props: {
   useEffect(() => {
     if (isModalOpen) {
       setNewWebsite("");
-      setSelectedTypes([defaultListType]); 
+      setSelectedTypes([defaultListType]);
     }
   }, [isModalOpen, defaultListType]);
 
@@ -57,42 +57,66 @@ export function AddBlocklist(props: {
 
   return (
     <div>
-    <Button variant="outline" onClick={() => setIsModalOpen(true)}>New Website</Button>
+      <Button variant="outline" onClick={() => setIsModalOpen(true)}>
+        New Website
+      </Button>
 
-    {isModalOpen && (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-lg shadow-2xl w-96">
-        <center><h2 className="text-lg font-semibold">New Website</h2></center>
-          <form className="grid gap-4 mt-4" onSubmit={handleSubmit}>
-            <label className="text-base font-medium text-gray-700">URL:</label>
-            <Input value={newWebsite} onChange={(e) => setNewWebsite(e.target.value)} />
+      {isModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-lg shadow-2xl w-96">
+            <center>
+              <h2 className="text-lg font-semibold">New Website</h2>
+            </center>
+            <form className="grid gap-4 mt-4" onSubmit={handleSubmit}>
+              <label className="text-base font-medium text-gray-700">
+                URL:
+              </label>
+              <Input
+                data-testid="url-input"
+                autoFocus
+                value={newWebsite}
+                onChange={(e) => setNewWebsite(e.target.value)}
+              />
 
-            <label className="text-base font-medium text-gray-700 mt-1">Add to list:</label>
-            <div className="flex flex-col space-y-2 text-sm">
-              {Object.entries(BlockListType).map(([key, value]) => (
-                <label key={value} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedTypes.includes(value as BlockListType)}
-                    onChange={() => toggleBlocklistType(value as BlockListType)}
-                  />
-                  {key}
-                </label>
-              ))}
-            </div>
+              <label className="text-base font-medium text-gray-700 mt-1">
+                Add to list:
+              </label>
+              <div className="flex flex-col space-y-2 text-sm">
+                {Object.entries(BlockListType).map(([key, value]) => (
+                  <label
+                    key={value}
+                    className="flex items-center gap-2 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTypes.includes(value as BlockListType)}
+                      onChange={() =>
+                        toggleBlocklistType(value as BlockListType)
+                      }
+                    />
+                    {key}
+                  </label>
+                ))}
+              </div>
 
-            <div className="mt-4 flex flex-col gap-2">
-              <Button type="submit" disabled={!isValid || addMutation.isPending}>
-                {addMutation.isPending ? "Adding..." : "Add"}
-              </Button>
-              <Button className="bg-gray-200 hover:bg-gray-100 text-black px-4 py-2 rounded" onClick={() => setIsModalOpen(false)}>
-                Cancel
-              </Button>
-            </div>
-          </form>
+              <div className="mt-4 flex flex-col gap-2">
+                <Button
+                  type="submit"
+                  disabled={!isValid || addMutation.isPending}
+                >
+                  {addMutation.isPending ? "Adding..." : "Add"}
+                </Button>
+                <Button
+                  className="bg-gray-200 hover:bg-gray-100 text-black px-4 py-2 rounded"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 }
