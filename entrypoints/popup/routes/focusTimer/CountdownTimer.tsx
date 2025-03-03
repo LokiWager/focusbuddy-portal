@@ -13,18 +13,28 @@ const CountdownTimer = ({ seconds, onComplete }: CountdownTimerProps) => {
   }, [seconds, onComplete]);
 
   return (
-    <p className="countdown-timer">
+    <p className="countdown-timer" data-testid="countdown-timer">
       <span style={{ fontSize: "40px", fontWeight: "bold", color: "#000" }}>
         {Math.floor(seconds / 60)}
       </span>
-      <span style={{ fontSize: "20px", color: "gray", marginLeft: "4px" }}>min</span>
-      <span style={{ fontSize: "40px", fontWeight: "bold", color: "#000", marginLeft: "8px" }}>
+      <span style={{ fontSize: "20px", color: "gray", marginLeft: "4px" }}>
+        min
+      </span>
+      <span
+        style={{
+          fontSize: "40px",
+          fontWeight: "bold",
+          color: "#000",
+          marginLeft: "8px",
+        }}
+      >
         {seconds % 60}
       </span>
-      <span style={{ fontSize: "20px", color: "gray", marginLeft: "4px" }}>s</span>
+      <span style={{ fontSize: "20px", color: "gray", marginLeft: "4px" }}>
+        s
+      </span>
     </p>
   );
 };
 
 export default CountdownTimer;
-

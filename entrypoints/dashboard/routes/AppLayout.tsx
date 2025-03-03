@@ -16,9 +16,9 @@ export function AppLayout() {
           <NavItem to="/">Home</NavItem>
           {!!auth.user && (
             <>
-              <NavItem to="/settings">Settings</NavItem>
               <NavItem to="/blocklist">Blocklist</NavItem>
               <NavItem to="/Focustimer">Focus Timer</NavItem>
+              <NavItem to="/analytics">Dashboard</NavItem>
             </>
           )}
         </div>
