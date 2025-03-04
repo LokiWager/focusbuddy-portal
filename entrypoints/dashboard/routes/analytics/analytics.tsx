@@ -69,7 +69,7 @@ export function Dashboard() {
         </div>
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Time This Week</p>
-          <div className="text-center text-lg font-bold py-8">{weekly} {daily === 1 ? "hr": "hrs"}</div>
+          <div className="text-center text-lg font-bold py-8">{weekly} {weekly === 1 ? "hr": "hrs"}</div>
         </div>
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Sessions Completed</p>
