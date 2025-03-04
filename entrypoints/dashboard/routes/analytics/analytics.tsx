@@ -65,11 +65,11 @@ export function Dashboard() {
       <div className="flex items-center mt-6 my-6 gap-2.5">
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Time Today</p>
-          <div className="text-center text-lg font-bold py-8">{daily}</div>
+          <div className="text-center text-lg font-bold py-8">{daily} {daily === 1 ? "hr": "hrs"}</div>
         </div>
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Time This Week</p>
-          <div className="text-center text-lg font-bold py-8">{weekly}</div>
+          <div className="text-center text-lg font-bold py-8">{weekly} {weekly === 1 ? "hr": "hrs"}</div>
         </div>
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Sessions Completed</p>
