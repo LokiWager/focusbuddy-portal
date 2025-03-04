@@ -384,6 +384,7 @@ export function useDeleteFocusSession() {
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["focustimer"] });
       client.invalidateQueries({ queryKey: ["nextFocusSession"] }); 
+      
     },
   });
   return mutation;
@@ -550,12 +551,10 @@ export function useGetNextFocusSession() {
   });
 
   useEffect(() => {
-    getNextFocusSessionFromLocalStorage().then((storedNextSession) => {
-      if (query.data?.focus_session !== undefined && JSON.stringify(storedNextSession) !== JSON.stringify(query.data.focus_session)) {
-        setNextFocusSessionToLocalStorage(query.data.focus_session);
-      }
-    });
-  }, [query.data?.focus_session]);
+    if (query.data?.focus_session !== undefined) {
+      setNextFocusSessionToLocalStorage(query.data.focus_session);
+    }
+  }, [query.data?.focus_session]);  
 
   return query;
 }

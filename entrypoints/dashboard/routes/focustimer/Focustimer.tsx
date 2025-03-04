@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavItem } from "@/common/components/Navigation/NavItem";
-import { useGetNextFocusSession, useGetAllFocusSession, useDeleteFocusSession } from "@/common/api/api";
+import { useGetNextFocusSession, useGetAllFocusSession, useDeleteFocusSession, FocusSessionStatus } from "@/common/api/api";
 
 function formatStartDate(dateStr?: string): string {
   if (!dateStr) return "N/A";
@@ -22,9 +22,16 @@ function formatTimeRange(startDate?: string, startTime?: string, duration?: numb
   return `${start} - ${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}`;
 }
 
+export const sessionColors: { [key: number]: string } = {
+  0: "bg-[#C4E1FF] text-[#3A3A3A]", // Work
+  1: "bg-[#A8E6CF] text-[#3A3A3A]", // Study
+  2: "bg-[#DDDDFF] text-[#3A3A3A]", // Personal
+  3: "bg-[#d0d0d0] text-[#3A3A3A]", // Other
+};
+
 export function Focustimer() {
   const { data: nextFocusSession, isLoading: isNextLoading } = useGetNextFocusSession();
-  const { data: allFocusSessions, isLoading: isAllLoading } = useGetAllFocusSession();
+  const { data: allFocusSessions, isLoading: isAllLoading } = useGetAllFocusSession(FocusSessionStatus.Upcoming);
   const { mutate: deleteSession, isPending: isDeleting } = useDeleteFocusSession();
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
@@ -54,14 +61,6 @@ export function Focustimer() {
   const cancelDelete = () => {
     setSessionToDelete(null);
   };
-
-  const sessionColors: { [key: number]: string } = {
-    0: "bg-[#A7C4BC] text-[#3A3A3A]", // Work
-    1: "bg-[#C3B091] text-[#3A3A3A]", // Study
-    2: "bg-[#D8B4A0] text-[#3A3A3A]", // Personal
-    3: "bg-[#B5C0D0] text-[#3A3A3A]", // Other
-  };
-  
   
   return (
     <div className="container mx-auto py-10 space-y-10">
@@ -74,7 +73,7 @@ export function Focustimer() {
           ) : nextFocusSession?.focus_session ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
-              <div className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider ${sessionColors[nextFocusSession.focus_session.session_type ?? 3]}`}>
+              <div className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider shadow-md ${sessionColors[nextFocusSession.focus_session.session_type ?? 3]}`}>
                   {["Work", "Study", "Personal", "Other"][nextFocusSession.focus_session.session_type ?? 3]}
                 </div>
 
@@ -116,7 +115,7 @@ export function Focustimer() {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Focus Schedule</h2>
-          <NavItem to="/focustimer/addsession" className="bg-black text-white rounded-lg px-4 py-2 font-bold">
+          <NavItem to="/focustimer/addsession" className="bg-[#f2cdcd] text-black rounded-lg px-4 py-2 font-bold shadow-md">
             + Add Session
           </NavItem>
         </div>
@@ -128,7 +127,7 @@ export function Focustimer() {
             allFocusSessions?.focus_sessions?.map((session) => (
               <div key={session.session_id ?? ""} className="flex items-center justify-between">
                 <div className="flex items-center space-x-6">
-                <div className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider ${sessionColors[session.session_type ?? 3]}`}>
+                <div className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider shadow-md ${sessionColors[session.session_type ?? 3]}`}>
                     {["Work", "Study", "Personal", "Other"][session.session_type ?? 3]}
                   </div>
                   <div className="flex items-center space-x-4 text-lg font-semibold tracking-wide">
@@ -180,7 +179,7 @@ export function Focustimer() {
                 Cancel
               </button>
               <button
-                className="bg-red-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-red-600"
+                className="bg-[#f2cdcd] text-black px-6 py-2 rounded-lg font-semibold hover:bg-red-600"
                 onClick={confirmDelete}
               >
                 Continue

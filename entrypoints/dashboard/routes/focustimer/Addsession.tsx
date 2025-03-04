@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { NavItem } from "@/common/components/Navigation/NavItem";
 import { useAddFocusSession, FocusSessionType, FocusSessionStatus } from "@/common/api/api";
+import {sessionColors} from "@/entrypoints/dashboard/routes/focustimer/Focustimer"
 
 export function Addsession() {
   const { mutateAsync: addSession } = useAddFocusSession();
   //const [sessionAdded, setSessionAdded] = useState(false);
-
   const getTodayDate = () => { 
     const today = new Date();
     today.setMinutes(today.getMinutes() - today.getTimezoneOffset()); 
@@ -88,9 +88,8 @@ export function Addsession() {
             {["Work", "Study", "Personal", "Other"].map((label, index) => (
               <button
                 key={index}
-                className={`px-4 py-2 rounded-lg ${
-                  type === index ? "bg-black text-white" : "bg-white text-black border"
-                }`}
+                className={`px-4 py-2 rounded-lg
+                  ${type === index ? sessionColors[index] : "bg-white text-black border border-gray-300"}`}
                 onClick={() => setType(index)}
               >
                 {label}
@@ -135,56 +134,92 @@ export function Addsession() {
         {/* Duration */}
         <div>
           <label className="block text-lg font-semibold mb-2">Duration (minutes)</label>
-          <input
-            type="number"
-            className="w-full px-4 py-2 border rounded-lg bg-white"
-            min="1"
-            value={duration || ""}
-            onKeyDown={(e) => {
-              if (e.key === "-" || e.key === "e") {
-                e.preventDefault();
-              }
-            }}
-            onChange={(e) => setDuration(Number(e.target.value))}
-            onBlur={() => {
-              if (!duration || isNaN(duration) || duration <= 0) {
-                setDuration(30); 
-              }
-            }}
-          />
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              className="w-8 h-8 flex items-center justify-center bg-[#c1cef8] rounded-full text-lg font-bold"
+              onClick={() => setDuration((prev) => Math.max(1, prev - 1))}
+            >
+              -
+            </button>
+            <input
+              type="number"
+              className="w-16 px-4 py-2 border rounded-lg bg-white text-center"
+              min="1"
+              value={duration || ""}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "e") {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              onBlur={() => {
+                if (!duration || isNaN(duration) || duration <= 0) {
+                  setDuration(30); 
+                }
+              }}
+            />
+            <button
+              type="button"
+              className="w-8 h-8 flex items-center justify-center bg-[#f2cdcd] rounded-full text-lg font-bold"
+              onClick={() => setDuration((prev) => prev + 1)}
+            >
+              +
+            </button>
+          </div>
         </div>
+
 
         {/* Break Time */}
         <div>
           <label className="block text-lg font-semibold mb-2">Break Time (minutes)</label>
-          <input
-            type="number"
-            className="w-full px-4 py-2 border rounded-lg bg-white"
-            min="0"
-            value={breakTime || ""}
-            onKeyDown={(e) => {
-              if (e.key === "-" || e.key === "e") {
-                e.preventDefault();
-              }
-            }}
-            onChange={(e) => setBreakTime(Number(e.target.value))}
-            onBlur={() => {
-              if (!breakTime || isNaN(breakTime) || breakTime <= 0) {
-                setBreakTime(0); 
-              }
-            }}
-          />
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              className="w-8 h-8 flex items-center justify-center bg-[#c1cef8] rounded-full text-lg font-bold"
+              onClick={() => setBreakTime((prev) => Math.max(0, prev - 1))}
+            >
+              -
+            </button>
+            <input
+              type="number"
+              className="w-16 px-4 py-2 border rounded-lg bg-white text-center"
+              min="0"
+              value={breakTime || ""}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "e") {
+                  e.preventDefault();
+                }
+              }}
+              onChange={(e) => setBreakTime(Number(e.target.value))}
+              onBlur={() => {
+                if (!breakTime || isNaN(breakTime) || breakTime <= 0) {
+                  setBreakTime(0); 
+                }
+              }}
+            />
+            <button
+              type="button"
+              className="w-8 h-8 flex items-center justify-center bg-[#f2cdcd] rounded-full text-lg font-bold"
+              onClick={() => setBreakTime((prev) => prev + 1)}
+            >
+              +
+            </button>
+          </div>
         </div>
 
         {/* Buttons */}
         <div className="flex justify-end space-x-4">
-          <NavItem to="/focustimer" className="text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-200">
+          <NavItem
+            to="/focustimer"
+            className="bg-gray-300 !text-black text-lg px-8 py-3 rounded-lg font-semibold hover:bg-gray-200 shadow-md"
+          >
             Cancel
           </NavItem>
 
           <NavItem
             to="/focustimer"
-            className="bg-black text-white px-6 py-2 rounded-lg font-semibold"
+            className="bg-[#f2cdcd] !text-black text-lg px-8 py-3 rounded-lg font-bold shadow-md"
             onClick={async (e) => {
               await handleAddSession();
             }}
