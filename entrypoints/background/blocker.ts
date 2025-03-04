@@ -11,7 +11,10 @@ export async function blockSites(type: BlockListType) {
     return;
   }
   const patterns = blocklist
-    .filter((item) => item.list_type === type)
+    .filter(
+      (item) =>
+        item.list_type === type || item.list_type === BlockListType.Permanent
+    )
     .map((item) => {
       return item.domain.replace(/^https?:\/\//, "||");
     });
