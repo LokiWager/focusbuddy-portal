@@ -74,7 +74,7 @@ interface FocusSessionModel {
   remaining_break_time: number;
 }
 
-interface AnalyticsTotalsResponse{
+interface AnalyticsTotalsResponse {
   daily: number;
   weekly: number;
   completed_sessions: number;
@@ -94,37 +94,42 @@ interface AnalyticsListChartResponse {
 export function useListAnalyticsDashBoard() {
   const authFetch = useAuthFetch();
 
-
   const analyticsTotals = useQuery<AnalyticsTotalsResponse>({
-    queryKey: ['analytics'],
-    queryFn: async () => {const response = await authFetch(`${import.meta.env.WXT_API_BASE_URI}/analytics`)
-    const data: AnalyticsTotalsResponse = await response.json()
-    return data
-  },
+    queryKey: ["analytics"],
+    queryFn: async () => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/analytics`
+      );
+      const data: AnalyticsTotalsResponse = await response.json();
+      return data;
+    },
+  });
 
-});
-  
-  return {daily: analyticsTotals.data?.daily, weekly: analyticsTotals.data?.weekly, completed_sessions: analyticsTotals.data?.completed_sessions }
-
-
+  return {
+    daily: analyticsTotals.data?.daily,
+    weekly: analyticsTotals.data?.weekly,
+    completed_sessions: analyticsTotals.data?.completed_sessions,
+  };
 }
 
 export function useListAnalyticsWeeklyChart() {
   const authFetch = useAuthFetch();
 
-
   const analyticsWeeklyChart = useQuery<AnalyticsListChartResponse>({
-    queryKey: ['analyticschart'],
-    queryFn: async () => {const response = await authFetch(`${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`)
-    const data: AnalyticsListChartResponse = await response.json()
-    return data
-  },
+    queryKey: ["analyticschart"],
+    queryFn: async () => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`
+      );
+      const data: AnalyticsListChartResponse = await response.json();
+      return data;
+    },
+  });
 
-});
-  
-  return {summary: analyticsWeeklyChart.data?.summary, status: analyticsWeeklyChart.data?.status }
-
-
+  return {
+    summary: analyticsWeeklyChart.data?.summary,
+    status: analyticsWeeklyChart.data?.status,
+  };
 }
 
 export function useListBlocklist() {
@@ -320,7 +325,7 @@ export function useAddFocusSession() {
     },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["focustimer"] });
-      client.invalidateQueries({ queryKey: ["nextFocusSession"] }); 
+      client.invalidateQueries({ queryKey: ["nextFocusSession"] });
     },
   });
   return mutation;
@@ -383,8 +388,7 @@ export function useDeleteFocusSession() {
     },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: ["focustimer"] });
-      client.invalidateQueries({ queryKey: ["nextFocusSession"] }); 
-      
+      client.invalidateQueries({ queryKey: ["nextFocusSession"] });
     },
   });
   return mutation;
@@ -421,35 +425,33 @@ export function updateFocusSession(sessionId: string, data: any): Promise<any> {
   });
 }
 
-export function updateUserStatus(data: any): Promise<any> {
-  return getJWTFromLocalStorage().then((user) => {
-    if (!user?.jwt) {
-      return Promise.reject(new Error("No JWT token found"));
+export async function updateUserStatus(data: any): Promise<any> {
+  const user = await getJWTFromLocalStorage();
+  if (!user?.jwt) {
+    return Promise.reject(new Error("No JWT token found"));
+  }
+  try {
+    const response = await fetch(
+      `${import.meta.env.WXT_API_BASE_URI}/user/status`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Token": user.jwt,
+        },
+        body: JSON.stringify(data),
+      }
+    );
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update user status");
     }
-
-    return fetch(`${import.meta.env.WXT_API_BASE_URI}/user/status`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Auth-Token": user.jwt,
-      },
-      body: JSON.stringify(data),
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Failed to update user status");
-        }
-        return response.json();
-      })
-      .catch((error) => {
-        console.error("Error updating user status:", error);
-        throw error;
-      });
-  });
+    return await response.json();
+  } catch (error) {
+    console.error("Error updating user status:", error);
+    throw error;
+  }
 }
-
-
 
 export interface GetFocusSessionResponse {
   session_id?: string;
@@ -468,20 +470,27 @@ export interface GetAllFocusSessionResponse {
   status: string;
 }
 
-
-
 export function useGetAllFocusSession(sessionStatus?: FocusSessionStatus) {
   const client = useQueryClient();
   const authFetch = useAuthFetch();
 
   useEffect(() => {
     getFocusSessionsFromLocalStorage().then((focusSessions) => {
-      const currentData = client.getQueryData<GetAllFocusSessionResponse>(["focustimer", sessionStatus]);
-      if (focusSessions !== null && JSON.stringify(currentData) !== JSON.stringify(focusSessions)) {
-        client.setQueryData<GetAllFocusSessionResponse>(["focustimer", sessionStatus], {
-          focus_sessions: focusSessions,
-          status: "success",
-        });
+      const currentData = client.getQueryData<GetAllFocusSessionResponse>([
+        "focustimer",
+        sessionStatus,
+      ]);
+      if (
+        focusSessions !== null &&
+        JSON.stringify(currentData) !== JSON.stringify(focusSessions)
+      ) {
+        client.setQueryData<GetAllFocusSessionResponse>(
+          ["focustimer", sessionStatus],
+          {
+            focus_sessions: focusSessions,
+            status: "success",
+          }
+        );
       }
     });
   }, [client, sessionStatus]);
@@ -489,9 +498,12 @@ export function useGetAllFocusSession(sessionStatus?: FocusSessionStatus) {
   const query = useQuery({
     queryKey: ["focustimer", sessionStatus],
     queryFn: async () => {
-      const url = sessionStatus !== undefined
-        ? `${import.meta.env.WXT_API_BASE_URI}/focustimer?session_status=${sessionStatus}`
-        : `${import.meta.env.WXT_API_BASE_URI}/focustimer`;
+      const url =
+        sessionStatus !== undefined
+          ? `${
+              import.meta.env.WXT_API_BASE_URI
+            }/focustimer?session_status=${sessionStatus}`
+          : `${import.meta.env.WXT_API_BASE_URI}/focustimer`;
 
       const response = await authFetch(url, { method: "GET" });
 
@@ -512,12 +524,10 @@ export function useGetAllFocusSession(sessionStatus?: FocusSessionStatus) {
   return query;
 }
 
-
 export interface GetNextFocusSessionResponse {
   focus_session?: GetFocusSessionResponse | null;
   status: string;
 }
- 
 
 export function useGetNextFocusSession() {
   const client = useQueryClient();
@@ -554,7 +564,7 @@ export function useGetNextFocusSession() {
     if (query.data?.focus_session !== undefined) {
       setNextFocusSessionToLocalStorage(query.data.focus_session);
     }
-  }, [query.data?.focus_session]);  
+  }, [query.data?.focus_session]);
 
   return query;
 }
@@ -565,19 +575,24 @@ export function getCurrFocusSession(): Promise<any> {
       return Promise.reject(new Error("No JWT token found"));
     }
 
-    return fetch(`${import.meta.env.WXT_API_BASE_URI}/focustimer?session_status=${FocusSessionStatus.Ongoing},${FocusSessionStatus.Paused}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Auth-Token": user.jwt,
+    return fetch(
+      `${import.meta.env.WXT_API_BASE_URI}/focustimer?session_status=${
+        FocusSessionStatus.Ongoing
+      },${FocusSessionStatus.Paused}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Auth-Token": user.jwt,
+        },
       }
-    })
+    )
       .then(async (response) => {
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.message || "Failed to fetch focus session");
         }
-        return response.json() as Promise<GetNextFocusSessionResponse>;;
+        return response.json() as Promise<GetNextFocusSessionResponse>;
       })
       .catch((error) => {
         console.error("Error fetching current focus session:", error);
@@ -585,4 +600,3 @@ export function getCurrFocusSession(): Promise<any> {
       });
   });
 }
-
