@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css?family=Open+Sans:500");
+
+.blocked-background {
+  background: #33cc99;
+  color: #fff;
+  font-family: "Open Sans", sans-serif;
+  text-align: center;
+  overflow: hidden;
+}
+
+.blocked-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.c {
+  text-align: center;
+  position: relative;
+}
+
+._404 {
+  font-size: 220px;
+  letter-spacing: 15px;
+}
+
+._1 {
+  font-size: 3em;
+  margin-top: 10px;
+}
+
+._2 {
+  font-size: 1.5em;
+  margin-top: 5px;
+}
+
+._3 {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-top: 15px;
+}
+
+/* Clouds animation */
+#clouds {
+  position: absolute;
+  top: 10%;
+  width: 100%;
+  z-index: -1;
+}
+
+.cloud {
+  width: 350px;
+  height: 120px;
+  background: white;
+  border-radius: 100px;
+  position: absolute;
+  z-index: -1;
+  opacity: 0.9;
+}
+
+.cloud:after,
+.cloud:before {
+  content: "";
+  position: absolute;
+  background: white;
+}
+
+.cloud:after {
+  width: 100px;
+  height: 100px;
+  top: -50px;
+  left: 50px;
+  border-radius: 100px;
+}
+
+.cloud:before {
+  width: 180px;
+  height: 180px;
+  top: -90px;
+  right: 50px;
+  border-radius: 200px;
+}
+
+/* Cloud movement */
+@keyframes moveclouds {
+  0% {
+    margin-left: 1000px;
+  }
+  100% {
+    margin-left: -1000px;
+  }
+}
+
+.x1 {
+  top: -50px;
+  left: 100px;
+  transform: scale(0.3);
+  animation: moveclouds 15s linear infinite;
+}
+
+.x1_5 {
+  top: -80px;
+  left: 250px;
+  transform: scale(0.3);
+  animation: moveclouds 17s linear infinite;
+}
+
+.x2 {
+  left: 250px;
+  top: 30px;
+  transform: scale(0.6);
+  animation: moveclouds 25s linear infinite;
+}
+
+.x3 {
+  left: 250px;
+  bottom: -70px;
+  transform: scale(0.6);
+  animation: moveclouds 25s linear infinite;
+}
+
+.x4 {
+  left: 470px;
+  bottom: 20px;
+  transform: scale(0.75);
+  animation: moveclouds 18s linear infinite;
+}
+
+.x5 {
+  left: 200px;
+  top: 300px;
+  transform: scale(0.5);
+  animation: moveclouds 20s linear infinite;
+}

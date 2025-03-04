@@ -6,6 +6,7 @@ import { Blocklist } from "./routes/blocklist/Blocklist";
 import { Addsession } from "./routes/focustimer/Addsession";
 import { Focustimer } from "./routes/focustimer/Focustimer";
 import { Home } from "./routes/home/Home";
+import { BlockedPage } from "./routes/blocklist/BlockedPage";
 
 export function AppRoutes() {
   const auth = useAuth();
@@ -17,7 +18,7 @@ export function AppRoutes() {
     <Routes>
       <Route
         path="blocked"
-        element={<div data-testid="blocked-page">BLOCKED</div>}
+        element={<BlockedPage />}
       />
       <Route element={<AppLayout />}>
         <Route index element={<Home />} />
