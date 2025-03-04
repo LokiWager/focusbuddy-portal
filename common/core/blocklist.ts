@@ -1,7 +1,7 @@
 import { storage } from "wxt/storage";
 import { BlockListModel } from "../api/api";
 
-const BLOCKLIST_STORAGE_KEY = "local:blocklist";
+export const BLOCKLIST_STORAGE_KEY = "local:blocklist";
 const ICON_SERVICE_URL = "https://www.google.com/s2/favicons?sz=128&domain=";
 
 export function parseDomainFromURL(websiteURL: string): string {
@@ -13,7 +13,7 @@ export function parseDomainFromURL(websiteURL: string): string {
     return hostname.startsWith("www.") ? hostname.slice(4) : hostname;
   } catch (error) {
     console.error("Invalid URL:", websiteURL, error);
-    return "";  // Return an empty string if the URL is invalid
+    return ""; // Return an empty string if the URL is invalid
   }
 }
 

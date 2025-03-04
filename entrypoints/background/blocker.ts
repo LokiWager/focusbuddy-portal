@@ -5,7 +5,7 @@ import { BlockListType } from "@/common/api/api";
 /**
  * Blocks all sites of a given type.
  */
-export async function blockSites(type: BlockListType) {
+export async function blockSites(type: BlockListType | null) {
   const blocklist = await getBlocklistFromLocalStorage();
   if (!blocklist) {
     return;
@@ -59,13 +59,10 @@ export async function blockPatterns(
 }
 
 /**
- * Unblocks all sites that are currently blocked.
+ * Unblocks all non-permanent sites that are currently blocked.
  */
-export async function unblockAllSites() {
-  const enabledRules = await chrome.declarativeNetRequest.getDynamicRules();
-  await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: enabledRules.map((rule) => rule.id),
-  });
+export async function blockPermanentSites() {
+  await blockSites(null);
 }
 
 function* getIdGenerator(
@@ -95,7 +92,7 @@ export function blockDebugger() {
     },
     unblock: async () => {
       try {
-        await unblockAllSites();
+        await blockPermanentSites();
         console.log("Unblocked");
       } catch (e) {
         console.error(e);
