@@ -7,8 +7,7 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend,
-  scales,
+  Legend
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
@@ -41,7 +40,11 @@ export function Dashboard() {
     datasets: [
       {
         label: "Hours",
-        data: [`${work?.duration}`, `${study?.duration}`, `${personal?.duration}`, `${other?.duration}`],
+        data: [ work?.duration || 0 ,
+                study?.duration || 0, 
+                personal?.duration, 
+                other?.duration
+              ],
         //data: [1200,300,500,120],
         backgroundColor: [
           "rgba(54,162,235,0.2)",
@@ -78,7 +81,11 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-      <div>
+      <div style={{
+          width: "600px",
+          height: "400px",
+          marginLeft: "0",
+        }}>
         <Bar options={options} data={data} />;
       </div>
     </>
@@ -88,6 +95,7 @@ export function Dashboard() {
 export const options = {
   indexAxis: "y" as const,
   responsive: true,
+  maintainAspectRatio: false,
   plugins: {
     legend: {
       display: false,
@@ -101,7 +109,7 @@ export const options = {
   scales:{
     x: {
         ticks:{
-            callback: function(value,index,ticks){
+            callback: function(value){
                 return value + 'hr';
             }
         }
