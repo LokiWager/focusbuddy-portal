@@ -1,0 +1,49 @@
+name: E2E Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [edited, synchronize, ready_for_review]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: E2E Test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d
+        with:
+          version: 10
+      - name: Setup Node.js
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
+        with:
+          node-version: "18.x"
+          cache: "pnpm"
+      - name: Install and Build
+        run: |
+          pnpm install
+          pnpm run build
+      - name: Start backend with Docker compose
+        run: docker-compose -f scripts/docker-compose-backend-e2e.yaml up -d
+      - name: Wait for services to be ready
+        run: |
+          # Wait for backend to be ready
+          echo "Waiting for backend to be ready..."
+          timeout 60s bash -c 'until curl -s http://localhost:8000/health; do sleep 2; done'
+          echo "Backend is ready!"
+      - name: Build and Run E2E tests
+        run: |
+          pnpm build:e2e
+          pnpm e2e
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          docker-compose -f scripts/docker-compose-backend-e2e.yaml logs
+      - name: Stop backend
+        if: always()
+        run: docker-compose -f scripts/docker-compose-backend-e2e.yaml down
