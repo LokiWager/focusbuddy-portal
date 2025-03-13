@@ -10,7 +10,7 @@ export function BlockedPage() {
     };
   }, []);
   return (
-    <div className="blocked-container">
+    <div className="blocked-container" data-testid="blocked-page">
       <div id="clouds">
         <div className="cloud x1"></div>
         <div className="cloud x1_5"></div>
