@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
-import { useListAnalyticsDashBoard, useListAnalyticsWeeklyChart, AnalyticsListWeeklyChartResponse } from "@/common/api/api";
+import {
+  useListAnalyticsDashBoard,
+  useListAnalyticsWeeklyChart,
+  AnalyticsListWeeklyChartResponse,
+} from "@/common/api/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import {
@@ -13,15 +17,27 @@ import {
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+);
 
 export function Dashboard() {
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
-  const [filteredSummary, setFilteredSummary] = useState<AnalyticsListWeeklyChartResponse[]>([]);
+  const [filteredSummary, setFilteredSummary] = useState<
+    AnalyticsListWeeklyChartResponse[]
+  >([]);
 
   const { daily, weekly, completed_sessions } = useListAnalyticsDashBoard();
-  const { summary } = useListAnalyticsWeeklyChart(startDate ?? new Date() , endDate ?? new Date());
+  const { summary } = useListAnalyticsWeeklyChart(
+    startDate ?? new Date(),
+    endDate ?? new Date(),
+  );
 
   useEffect(() => {
     if (summary) {
@@ -38,7 +54,7 @@ export function Dashboard() {
       const diff = (end.getTime() - start.getTime()) / (1000 * 3600 * 24);
       if (diff > 30) {
         alert("Date range cannot exceed 30 days.");
-      } 
+      }
     }
   };
 
@@ -50,7 +66,8 @@ export function Dashboard() {
         label: "Hours",
         data: labels.map(
           (label, index) =>
-            filteredSummary.find((s) => s.session_type === index)?.duration || 0
+            filteredSummary.find((s) => s.session_type === index)?.duration ||
+            0,
         ),
         backgroundColor: [
           "rgba(54,162,235,0.2)",
@@ -93,17 +110,17 @@ export function Dashboard() {
         </div>
       </div>
       <div style={{ width: "600px", height: "400px" }}>
-      <div className="flex items-center gap-2 my-2 justify-end p-5">
-        <DatePicker
-          onChange={handleDateChange}
-          startDate={startDate}
-          endDate={endDate}
-          selectsRange
-          maxDate={new Date()}
-          dateFormat="MM/dd/yyyy"
-          className="border p-2 rounded"
-        />
-      </div>
+        <div className="flex items-center gap-2 my-2 justify-end p-5">
+          <DatePicker
+            onChange={handleDateChange}
+            startDate={startDate}
+            endDate={endDate}
+            selectsRange
+            maxDate={new Date()}
+            dateFormat="MM/dd/yyyy"
+            className="border p-2 rounded"
+          />
+        </div>
         <Bar options={options} data={data} />
       </div>
     </>

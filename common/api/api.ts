@@ -124,15 +124,15 @@ export function useListAnalyticsWeeklyChart(startDate: Date, endDate: Date) {
   const analyticsWeeklyChart = useQuery<AnalyticsListChartResponse>({
     queryKey: ["analyticschart", startDate, endDate],
     queryFn: async () => {
-      const formattedStartDate = formatDate(startDate)
-      const formattedEndDate = formatDate(endDate)
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
       const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary?start_date=${formattedStartDate}&end_date=${formattedEndDate}`,
       );
       const data: AnalyticsListChartResponse = await response.json();
       return data;
     },
-    enabled: !!startDate && !!endDate
+    enabled: !!startDate && !!endDate,
   });
 
   return {
