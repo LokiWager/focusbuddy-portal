@@ -20,6 +20,7 @@ jobs:
       - name: Install and Build
         run: |
           pnpm install
+          pnpm exec playwright install
       - name: Start backend with Docker compose
         run: docker compose -f scripts/docker-compose-backend-e2e.yaml up -d
       - name: Wait for services to be ready
