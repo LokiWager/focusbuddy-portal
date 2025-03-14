@@ -1,6 +1,12 @@
 name: Lint
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [edited, synchronize, ready_for_review]
+  workflow_dispatch:
 
 jobs:
   lint:
