@@ -17,4 +17,8 @@ export class BlocklistPage {
     await this.page.getByTestId("url-input").fill(url);
     await this.page.getByTestId("url-input").press("Enter");
   }
+
+  get blockListTable() {
+    return this.page.getByTestId("blocklist-table");
+  }
 }

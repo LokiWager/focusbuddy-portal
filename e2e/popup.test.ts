@@ -13,10 +13,14 @@ test.describe("popup", () => {
       const blocklistPage = new BlocklistPage(page, extensionId);
       await blocklistPage.goto();
       await blocklistPage.addSite("youtube.com");
-      await blocklistPage.addSite("instagram.com");
+      await test
+        .expect(blocklistPage.blockListTable.getByText("youtube.com"))
+        .toBeVisible();
 
-      await test.expect(page.getByText("youtube.com")).toBeVisible();
-      await test.expect(page.getByText("instagram.com")).toBeVisible();
+      await blocklistPage.addSite("instagram.com");
+      await test
+        .expect(blocklistPage.blockListTable.getByText("instagram.com"))
+        .toBeVisible();
     });
 
     test("focus", async ({ page, extensionId, context }) => {
