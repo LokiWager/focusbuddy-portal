@@ -14,6 +14,9 @@ test.describe("popup", () => {
       await blocklistPage.goto();
       await blocklistPage.addSite("youtube.com");
       await blocklistPage.addSite("instagram.com");
+
+      await test.expect(page.getByText("youtube.com")).toBeVisible();
+      await test.expect(page.getByText("instagram.com")).toBeVisible();
     });
 
     test("focus", async ({ page, extensionId, context }) => {
