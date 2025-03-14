@@ -21,7 +21,7 @@
     "e2e:ui": "playwright test --ui",
     "lint:eslint": "eslint",
     "lint:type": "tsc --noEmit",
-    "lint:prettier": "prettier --check ."
+    "lint:prettier": "prettier --check . && echo 'format successful' || (prettier --write .; git diff; return 1)"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.5",
