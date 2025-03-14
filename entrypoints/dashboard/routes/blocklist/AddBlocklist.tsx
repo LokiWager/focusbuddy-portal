@@ -1,23 +1,23 @@
 import { BlockListType, useAddBlocklist } from "@/common/api/api";
 import { Button } from "@/common/components/ui/button";
-import { Input } from "@/common/components/ui/input";
 import { toast } from "@/common/hooks/use-toast";
 import { useState, useEffect } from "react";
+import { getIconURLFromDomain } from "@/common/core/blocklist";
 
 export function AddBlocklist(props: {
   defaultListType: BlockListType;
   onAdded: (added: { domain: string; list_type: BlockListType }[]) => void;
 }) {
   const { defaultListType, onAdded } = props;
-  const [newWebsite, setNewWebsite] = useState("");
+  const [newWebsites, setNewWebsites] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<BlockListType[]>([]);
   const addMutation = useAddBlocklist();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const isValid = newWebsite.length > 0;
+  const isValid = newWebsites.length > 0;
 
   useEffect(() => {
     if (isModalOpen) {
-      setNewWebsite("");
+      setNewWebsites([]);
       setSelectedTypes([defaultListType]);
     }
   }, [isModalOpen, defaultListType]);
@@ -31,10 +31,9 @@ export function AddBlocklist(props: {
     e.preventDefault();
     if (!isValid) return;
 
-    const requests = selectedTypes.map((type) => ({
-      domain: newWebsite,
-      list_type: type,
-    }));
+    const requests = newWebsites.flatMap(domain =>
+      selectedTypes.map((type) => ({ domain, list_type: type }))
+    );
 
     for (const request of requests) {
       addMutation.mutate(request, {
@@ -48,12 +47,17 @@ export function AddBlocklist(props: {
       });
     }
     toast({
-      title: "Added!",
-      description: `${newWebsite} is now on your blocklist.`,
+      title: "Success!",
+      description: `Added ${newWebsites.length} websites to your blocklist.`,
     });
     onAdded(requests);
     setIsModalOpen(false);
   };
+
+  const suggestedWebsites = [
+    "youtube.com", "facebook.com", "x.com", "tiktok.com",
+    "reddit.com", "instagram.com", "netflix.com", "amazon.com"
+  ];
 
   return (
     <div>
@@ -71,12 +75,31 @@ export function AddBlocklist(props: {
               <label className="text-base font-medium text-gray-700">
                 URL:
               </label>
-              <Input
+              <textarea
                 data-testid="url-input"
                 autoFocus
-                value={newWebsite}
-                onChange={(e) => setNewWebsite(e.target.value)}
+                placeholder="For multiple websites, enter one website per line"
+                value={newWebsites.join("\n")}
+                onChange={(e) => setNewWebsites(e.target.value.split("\n").map(site => site.trim()))}
+                className="border p-2 rounded w-full"
               />
+  
+              <div className="mt-4">
+                <p className="font-semibold mb-4">Suggested Websites:</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {suggestedWebsites.map(site => (
+                    <button
+                      key={site}
+                      className="border rounded px-3 py-2 flex items-center justify-between w-full hover:bg-gray-100"
+                      onClick={() => setNewWebsites(prev => [...new Set([...prev, site])])}
+                    >
+                      <img src={getIconURLFromDomain(site)} alt={site} className="w-5 h-5 rounded" />
+                      <span className="flex-1 text-center font-medium">{site}</span>
+                      <span className="text-lg font-semibold">+</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <label className="text-base font-medium text-gray-700 mt-1">
                 Add to list:
