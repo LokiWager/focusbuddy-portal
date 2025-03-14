@@ -1,13 +1,12 @@
 import {
   FocusSessionStatus,
   FocusSessionType,
+  GetFocusSessionResponse,
   UserStatus,
   getCurrFocusSession,
   updateFocusSession,
   updateUserStatus,
-  GetFocusSessionResponse
 } from "@/common/api/api";
-import { Focus } from "lucide-react";
 import { storage } from "wxt/storage";
 let focusTimer: NodeJS.Timeout | null = null;
 let currentState: "idle" | "focus" | "rest" = "idle";
@@ -196,29 +195,35 @@ export async function initializeState() {
       resetState();
     }
   }
-  storage.getItem<GetFocusSessionResponse>(NEXT_SESSION_STORAGE_KEY).then((data) => {
-    nextFocusLength = data?.duration ?? 30;
-    nextBreakLength = data?.break_duration ?? 10;
-    nextFocusType = data?.session_type ? SessionTypeReverse[data.session_type] : "Choose a focus type";
-    nextSessionId = data?.session_id ?? "";
-    nextStartTime = data?.start_time ?? "";
-    nextStartDate = data?.start_date ?? "";
-    console.log("Next Focus Session:", data);
-    checkSessionTime();
+  storage
+    .getItem<GetFocusSessionResponse>(NEXT_SESSION_STORAGE_KEY)
+    .then((data) => {
+      nextFocusLength = data?.duration ?? 30;
+      nextBreakLength = data?.break_duration ?? 10;
+      nextFocusType = data?.session_type
+        ? SessionTypeReverse[data.session_type]
+        : "Choose a focus type";
+      nextSessionId = data?.session_id ?? "";
+      nextStartTime = data?.start_time ?? "";
+      nextStartDate = data?.start_date ?? "";
+      console.log("Next Focus Session:", data);
+      checkSessionTime();
 
-    chrome.storage.onChanged.addListener((changes, ) => {
-      if (changes.next_focus_session) {
-        const data = changes.next_focus_session.newValue;
-        nextFocusLength = data?.duration ?? 30;
-        nextBreakLength = data?.break_duration ?? 10;
-        nextFocusType = data?.session_type ? SessionTypeReverse[data.session_type] : "Choose a focus type";
-        nextSessionId = data?.session_id ?? "";
-        nextStartTime = data?.start_time ?? "";
-        nextStartDate = data?.start_date ?? "";
-        console.log("Updated Next Focus Session:", data);
-      }
+      chrome.storage.onChanged.addListener((changes) => {
+        if (changes.next_focus_session) {
+          const data = changes.next_focus_session.newValue;
+          nextFocusLength = data?.duration ?? 30;
+          nextBreakLength = data?.break_duration ?? 10;
+          nextFocusType = data?.session_type
+            ? SessionTypeReverse[data.session_type]
+            : "Choose a focus type";
+          nextSessionId = data?.session_id ?? "";
+          nextStartTime = data?.start_time ?? "";
+          nextStartDate = data?.start_date ?? "";
+          console.log("Updated Next Focus Session:", data);
+        }
+      });
     });
-  });
 }
 
 export function timerListener(port: chrome.runtime.Port) {
@@ -362,13 +367,15 @@ const checkSessionTime = () => {
   setInterval(() => {
     if (nextStartTime != "" && nextStartDate != "") {
       const startDateTimeInSeconds = Math.floor(
-        new Date(`${nextStartDate} ${nextStartTime}`).getTime() / 1000
+        new Date(`${nextStartDate} ${nextStartTime}`).getTime() / 1000,
       );
       const now = Math.floor(new Date().getTime() / 1000);
       if (now === startDateTimeInSeconds) {
         console.log("Time to start the session!");
         // Trigger session start logic
-        updateFocusSession(nextSessionId, {session_status: FocusSessionStatus.Ongoing})
+        updateFocusSession(nextSessionId, {
+          session_status: FocusSessionStatus.Ongoing,
+        })
           .then((data) => {
             console.log("Session updated successfully:", data);
             const message = {
@@ -378,7 +385,7 @@ const checkSessionTime = () => {
               breakLength: nextBreakLength,
               focusType: nextFocusType,
               sessionId: nextSessionId,
-            }
+            };
             startFocusSession(message);
             resetNextSession();
           })
