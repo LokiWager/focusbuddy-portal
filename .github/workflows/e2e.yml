@@ -33,6 +33,12 @@ jobs:
         run: |
           pnpm build:e2e
           pnpm e2e
+          ls
+      - name: Archive E2E test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results
       - name: Collect logs on failure
         if: failure()
         run: |
