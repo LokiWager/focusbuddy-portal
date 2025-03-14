@@ -1,11 +1,14 @@
 import { Page } from "@playwright/test";
 
 export class BlocklistPage {
-  constructor(private page: Page, private extensionId: string) {}
+  constructor(
+    private page: Page,
+    private extensionId: string,
+  ) {}
 
   async goto() {
     await this.page.goto(
-      `chrome-extension://${this.extensionId}/dashboard.html#/blocklist`
+      `chrome-extension://${this.extensionId}/dashboard.html#/blocklist`,
     );
   }
 

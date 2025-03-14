@@ -1,32 +1,38 @@
 import { useState } from "react";
 import { NavItem } from "@/common/components/Navigation/NavItem";
-import { useAddFocusSession, FocusSessionType, FocusSessionStatus } from "@/common/api/api";
-import {sessionColors} from "@/entrypoints/dashboard/routes/focustimer/Focustimer"
+import {
+  useAddFocusSession,
+  FocusSessionType,
+  FocusSessionStatus,
+} from "@/common/api/api";
+import { sessionColors } from "@/entrypoints/dashboard/routes/focustimer/Focustimer";
 
 export function Addsession() {
   const { mutateAsync: addSession } = useAddFocusSession();
   //const [sessionAdded, setSessionAdded] = useState(false);
-  const getTodayDate = () => { 
+  const getTodayDate = () => {
     const today = new Date();
-    today.setMinutes(today.getMinutes() - today.getTimezoneOffset()); 
+    today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
     return today.toISOString().split("T")[0];
   };
-  
+
   const getNextHour = () => {
     const now = new Date();
     const nextHour = now.getHours() + 1;
     return nextHour === 24 ? 0 : nextHour;
   };
-  
+
   const getStartDate = () => {
     const now = new Date();
-    return now.getHours() === 23 ? new Date(now.setDate(now.getDate() + 1)).toISOString().split("T")[0] : getTodayDate();
+    return now.getHours() === 23
+      ? new Date(now.setDate(now.getDate() + 1)).toISOString().split("T")[0]
+      : getTodayDate();
   };
-  
+
   const getNextMinute = () => 0;
 
   const [type, setType] = useState(0);
-  const [startDate, setStartDate] = useState(getStartDate());;
+  const [startDate, setStartDate] = useState(getStartDate());
   const [startHour, setStartHour] = useState(getNextHour());
   const [startMinute, setStartMinute] = useState(getNextMinute());
   const [duration, setDuration] = useState(30);
@@ -47,7 +53,9 @@ export function Addsession() {
     const formattedDate = formatDateToMMDDYYYY(startDate);
     const formattedTime = formatTimeToHHMMSS(startHour, startMinute);
 
-    const inputDateTime = new Date(`${startDate}T${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")}:00`);
+    const inputDateTime = new Date(
+      `${startDate}T${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")}:00`,
+    );
     const now = new Date();
     if (inputDateTime < now) {
       alert("Invalid Date and Time: The selected time is in the past.");
@@ -70,7 +78,10 @@ export function Addsession() {
       alert("Session added successfully!");
     } catch (error: any) {
       console.error("Failed to add focus session:", error);
-      const errorMsg = error?.response?.data?.message || error?.message || "An unknown error occurred.";
+      const errorMsg =
+        error?.response?.data?.message ||
+        error?.message ||
+        "An unknown error occurred.";
       //setSessionAdded(false);
       alert(errorMsg);
     }
@@ -113,7 +124,11 @@ export function Addsession() {
         <div>
           <label className="block text-lg font-semibold mb-2">Start Time</label>
           <div className="flex items-center space-x-2">
-            <select className="w-1/2 px-4 py-2 border rounded-lg bg-white" value={startHour} onChange={(e) => setStartHour(Number(e.target.value))}>
+            <select
+              className="w-1/2 px-4 py-2 border rounded-lg bg-white"
+              value={startHour}
+              onChange={(e) => setStartHour(Number(e.target.value))}
+            >
               {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
                 <option key={hour} value={hour}>
                   {hour.toString().padStart(2, "0")}
@@ -121,7 +136,11 @@ export function Addsession() {
               ))}
             </select>
             <span className="text-xl font-bold">:</span>
-            <select className="w-1/2 px-4 py-2 border rounded-lg bg-white" value={startMinute} onChange={(e) => setStartMinute(Number(e.target.value))}>
+            <select
+              className="w-1/2 px-4 py-2 border rounded-lg bg-white"
+              value={startMinute}
+              onChange={(e) => setStartMinute(Number(e.target.value))}
+            >
               {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
                 <option key={minute} value={minute}>
                   {minute.toString().padStart(2, "0")}
@@ -133,7 +152,9 @@ export function Addsession() {
 
         {/* Duration */}
         <div>
-          <label className="block text-lg font-semibold mb-2">Duration (minutes)</label>
+          <label className="block text-lg font-semibold mb-2">
+            Duration (minutes)
+          </label>
           <div className="flex items-center space-x-2">
             <button
               type="button"
@@ -155,7 +176,7 @@ export function Addsession() {
               onChange={(e) => setDuration(Number(e.target.value))}
               onBlur={() => {
                 if (!duration || isNaN(duration) || duration <= 0) {
-                  setDuration(30); 
+                  setDuration(30);
                 }
               }}
             />
@@ -169,10 +190,11 @@ export function Addsession() {
           </div>
         </div>
 
-
         {/* Break Time */}
         <div>
-          <label className="block text-lg font-semibold mb-2">Break Time (minutes)</label>
+          <label className="block text-lg font-semibold mb-2">
+            Break Time (minutes)
+          </label>
           <div className="flex items-center space-x-2">
             <button
               type="button"
@@ -194,7 +216,7 @@ export function Addsession() {
               onChange={(e) => setBreakTime(Number(e.target.value))}
               onBlur={() => {
                 if (!breakTime || isNaN(breakTime) || breakTime <= 0) {
-                  setBreakTime(0); 
+                  setBreakTime(0);
                 }
               }}
             />

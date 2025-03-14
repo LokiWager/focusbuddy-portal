@@ -21,16 +21,16 @@ const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/Focustimer");
 
 const FocusTimer = () => {
   const [currentState, setCurrentState] = useState<"idle" | "focus" | "rest">(
-    "idle"
+    "idle",
   );
   const [focusLength, setFocusLength] = useState<number>(30);
   const [breakLength, setBreakLength] = useState<number>(10);
   const [focusType, setFocusType] = useState<string>("Choose a focus type");
   const [remainingFocusTime, setRemainingFocusTime] = useState<number>(
-    focusLength * 60
+    focusLength * 60,
   );
   const [remainingBreakTime, setRemainingBreakTime] = useState<number>(
-    breakLength * 60
+    breakLength * 60,
   );
   const [startClicked, setStartClicked] = useState<boolean>(false);
   const [port, setPort] = useState<chrome.runtime.Port | null>(null);
@@ -190,7 +190,7 @@ const FocusTimer = () => {
           onError(err) {
             console.error(err);
           },
-        }
+        },
       );
 
       setStartClicked(false);
@@ -214,7 +214,7 @@ const FocusTimer = () => {
           restState();
           port?.postMessage({ type: "START_BREAK" });
         },
-      }
+      },
     );
     updateStatusMutation.mutate(UserStatus.Idle, {
       onError(err) {
@@ -240,7 +240,7 @@ const FocusTimer = () => {
           backToFocusState();
           port?.postMessage({ type: "END_BREAK" });
         },
-      }
+      },
     );
     updateStatusMutation.mutate(
       UserStatus[focusType as keyof typeof UserStatus],
@@ -248,7 +248,7 @@ const FocusTimer = () => {
         onError(err) {
           console.error(err);
         },
-      }
+      },
     );
   };
 
@@ -269,7 +269,7 @@ const FocusTimer = () => {
           idleState();
           port?.postMessage({ type: "STOP_SESSION" });
         },
-      }
+      },
     );
     if (currentState !== "rest") {
       updateStatusMutation.mutate(UserStatus.Idle, {

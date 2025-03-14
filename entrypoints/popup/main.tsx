@@ -21,5 +21,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </AuthContext.Consumer>
       </QueryClientProvider>
     </AuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

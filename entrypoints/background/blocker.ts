@@ -13,7 +13,7 @@ export async function blockSites(type: BlockListType | null) {
   const patterns = blocklist
     .filter(
       (item) =>
-        item.list_type === type || item.list_type === BlockListType.Permanent
+        item.list_type === type || item.list_type === BlockListType.Permanent,
     )
     .map((item) => {
       return item.domain.replace(/^https?:\/\//, "||");
@@ -26,7 +26,7 @@ export async function blockPatterns(
   /**
    * An array of patterns to block. A pattern is a string that is part of a URL. See https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest#property-RuleCondition-urlFilter for syntax information.
    */
-  patterns: string[]
+  patterns: string[],
 ) {
   const enabledRules = await chrome.declarativeNetRequest.getDynamicRules();
   console.log("[blockSites]", `Found ${enabledRules.length} enabled rules.`);
@@ -46,7 +46,7 @@ export async function blockPatterns(
         urlFilter: pattern,
         resourceTypes: [chrome.declarativeNetRequest.ResourceType.MAIN_FRAME],
       },
-    })
+    }),
   );
   console.log("[blockSites]", `Adding ${addRules.length} rules.`);
 
@@ -66,7 +66,7 @@ export async function blockPermanentSites() {
 }
 
 function* getIdGenerator(
-  existingIds: number[] | Set<number>
+  existingIds: number[] | Set<number>,
 ): Generator<number> {
   const existingIdsSet = new Set(existingIds);
 

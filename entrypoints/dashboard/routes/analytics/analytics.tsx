@@ -7,7 +7,7 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
 
@@ -17,34 +17,32 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
 );
-
 
 export function Dashboard() {
   const { daily, weekly, completed_sessions } = useListAnalyticsDashBoard();
   const { summary } = useListAnalyticsWeeklyChart();
   const labels = ["Work", "Study", "Personal", "Other"];
-  let work,study,personal,other;
-  if (typeof summary !== "undefined"){
-    work = summary.find((sessionInfo)=> sessionInfo.session_type === 0)
-    study = summary.find((sessionInfo)=> sessionInfo.session_type === 1)
-    personal = summary.find((sessionInfo)=> sessionInfo.session_type === 2)
-    other = summary.find((sessionInfo)=> sessionInfo.session_type === 3) 
+  let work, study, personal, other;
+  if (typeof summary !== "undefined") {
+    work = summary.find((sessionInfo) => sessionInfo.session_type === 0);
+    study = summary.find((sessionInfo) => sessionInfo.session_type === 1);
+    personal = summary.find((sessionInfo) => sessionInfo.session_type === 2);
+    other = summary.find((sessionInfo) => sessionInfo.session_type === 3);
   }
-
-
 
   const data = {
     labels,
     datasets: [
       {
         label: "Hours",
-        data: [ work?.duration || 0 ,
-                study?.duration || 0, 
-                personal?.duration, 
-                other?.duration
-              ],
+        data: [
+          work?.duration || 0,
+          study?.duration || 0,
+          personal?.duration,
+          other?.duration,
+        ],
         //data: [1200,300,500,120],
         backgroundColor: [
           "rgba(54,162,235,0.2)",
@@ -68,11 +66,15 @@ export function Dashboard() {
       <div className="flex items-center mt-6 my-6 gap-2.5">
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Time Today</p>
-          <div className="text-center text-lg font-bold py-8">{daily} {daily === 1 ? "hr": "hrs"}</div>
+          <div className="text-center text-lg font-bold py-8">
+            {daily} {daily === 1 ? "hr" : "hrs"}
+          </div>
         </div>
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Time This Week</p>
-          <div className="text-center text-lg font-bold py-8">{weekly} {weekly === 1 ? "hr": "hrs"}</div>
+          <div className="text-center text-lg font-bold py-8">
+            {weekly} {weekly === 1 ? "hr" : "hrs"}
+          </div>
         </div>
         <div className="rounded-xl size-40 border-1 p-4 bg-gray-100">
           <p className="text-lg text-center">Focus Sessions Completed</p>
@@ -81,11 +83,13 @@ export function Dashboard() {
           </div>
         </div>
       </div>
-      <div style={{
+      <div
+        style={{
           width: "600px",
           height: "400px",
           marginLeft: "0",
-        }}>
+        }}
+      >
         <Bar options={options} data={data} />;
       </div>
     </>
@@ -106,13 +110,13 @@ export const options = {
       text: "Focus Time Analysis",
     },
   },
-  scales:{
+  scales: {
     x: {
-        ticks:{
-            callback: function(value){
-                return value + 'hr';
-            }
-        }
-    }
-  }
+      ticks: {
+        callback: function (value: unknown) {
+          return value + "hr";
+        },
+      },
+    },
+  },
 };

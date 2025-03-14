@@ -11,7 +11,7 @@ export function Blocklist() {
   const data = blocklists || [];
   const [keyword, setKeyword] = useState("");
   const filteredData = data.filter(
-    (item) => item.domain.includes(keyword) && item.list_type === activeTab
+    (item) => item.domain.includes(keyword) && item.list_type === activeTab,
   );
 
   return (

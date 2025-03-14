@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { use, useEffect } from "react";
+import { useEffect } from "react";
 import { useAuthFetch } from "../components/auth/AuthContext";
 import {
   addToLocalStorage,
@@ -9,11 +9,11 @@ import {
 } from "../core/blocklist";
 import {
   getFocusSessionsFromLocalStorage,
+  getNextFocusSessionFromLocalStorage,
   setFocusSessionsToLocalStorage,
   setNextFocusSessionToLocalStorage,
-  getNextFocusSessionFromLocalStorage,
 } from "../core/focustimer";
-import { setJWTToLocalStorage, getJWTFromLocalStorage } from "../core/user";
+import { getJWTFromLocalStorage, setJWTToLocalStorage } from "../core/user";
 
 export const BlockListType = {
   Work: 0,
@@ -98,7 +98,7 @@ export function useListAnalyticsDashBoard() {
     queryKey: ["analytics"],
     queryFn: async () => {
       const response = await authFetch(
-        `${import.meta.env.WXT_API_BASE_URI}/analytics`
+        `${import.meta.env.WXT_API_BASE_URI}/analytics`,
       );
       const data: AnalyticsTotalsResponse = await response.json();
       return data;
@@ -119,7 +119,7 @@ export function useListAnalyticsWeeklyChart() {
     queryKey: ["analyticschart"],
     queryFn: async () => {
       const response = await authFetch(
-        `${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`
+        `${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`,
       );
       const data: AnalyticsListChartResponse = await response.json();
       return data;
@@ -151,7 +151,7 @@ export function useListBlocklist() {
     queryKey: ["blocklist"],
     queryFn: async () => {
       const response = await authFetch(
-        `${import.meta.env.WXT_API_BASE_URI}/blocklist`
+        `${import.meta.env.WXT_API_BASE_URI}/blocklist`,
       );
       const data: BlocklistsResponse = await response.json();
       return data;
@@ -189,7 +189,7 @@ export function useAddBlocklist() {
         {
           method: "POST",
           body: JSON.stringify(data),
-        }
+        },
       );
       if (response.status === 400) {
         throw new Error("Invalid website url, please enter a valid URL");
@@ -225,7 +225,7 @@ export function useDeleteBlocklist() {
         `${import.meta.env.WXT_API_BASE_URI}/blocklist/${blocklistId}`,
         {
           method: "DELETE",
-        }
+        },
       );
       if (response.status === 400) {
         throw new Error("Invalid Blocklist ID");
@@ -262,7 +262,7 @@ export function useLogin() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ token: data.token }),
-        }
+        },
       );
       if (response.status === 400 || !response.ok) {
         throw new Error("Failed to login, please try again");
@@ -288,7 +288,7 @@ export function useUpdateUserStatus() {
         {
           method: "PUT",
           body: JSON.stringify({ user_status: status }),
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Failed to update user status, please try again");
@@ -312,7 +312,7 @@ export function useAddFocusSession() {
         {
           method: "POST",
           body: JSON.stringify(data),
-        }
+        },
       );
       if (response.status === 409) {
         throw new Error("Focus session conflict with upcoming sessions");
@@ -348,7 +348,7 @@ export function useUpdateFocusSession() {
         {
           method: "PUT",
           body: JSON.stringify(data),
-        }
+        },
       );
       if (response.status === 400) {
         throw new Error("No fields to update");
@@ -377,7 +377,7 @@ export function useDeleteFocusSession() {
         `${import.meta.env.WXT_API_BASE_URI}/focustimer/${sessionId}`,
         {
           method: "DELETE",
-        }
+        },
       );
       if (response.status === 404) {
         throw new Error("Focus session not found");
@@ -409,7 +409,7 @@ export function updateFocusSession(sessionId: string, data: any): Promise<any> {
           "X-Auth-Token": user.jwt,
         },
         body: JSON.stringify(data),
-      }
+      },
     )
       .then(async (response) => {
         if (!response.ok) {
@@ -440,7 +440,7 @@ export async function updateUserStatus(data: any): Promise<any> {
           "X-Auth-Token": user.jwt,
         },
         body: JSON.stringify(data),
-      }
+      },
     );
     if (!response.ok) {
       const errorData = await response.json();
@@ -489,7 +489,7 @@ export function useGetAllFocusSession(sessionStatus?: FocusSessionStatus) {
           {
             focus_sessions: focusSessions,
             status: "success",
-          }
+          },
         );
       }
     });
@@ -549,7 +549,7 @@ export function useGetNextFocusSession() {
     queryFn: async () => {
       const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/focustimer/nextSession`,
-        { method: "GET" }
+        { method: "GET" },
       );
 
       if (!response.ok) {
@@ -585,7 +585,7 @@ export function getCurrFocusSession(): Promise<any> {
           "Content-Type": "application/json",
           "X-Auth-Token": user.jwt,
         },
-      }
+      },
     )
       .then(async (response) => {
         if (!response.ok) {

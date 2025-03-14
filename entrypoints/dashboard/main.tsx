@@ -18,5 +18,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       </QueryClientProvider>
       <Toaster />
     </AuthProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

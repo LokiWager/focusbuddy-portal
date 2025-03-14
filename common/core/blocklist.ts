@@ -41,7 +41,7 @@ export async function getBlocklistFromLocalStorage(): Promise<
 }
 
 export async function setBlocklistToLocalStorage(
-  blocklist: BlockListModel[]
+  blocklist: BlockListModel[],
 ): Promise<void> {
   await storage.setItem(BLOCKLIST_STORAGE_KEY, blocklist);
 }

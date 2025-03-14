@@ -8,7 +8,7 @@ export function NavItem(props: NavLinkProps) {
       className={clsx(
         "px-5 py-2 text-lg",
         "hover:bg-sky-200 [&.active]:text-red-400",
-        props.className
+        props.className,
       )}
     />
   );

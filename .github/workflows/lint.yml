@@ -6,17 +6,14 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v4
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
         with:
-          cache-dependency-path: subdir/package-lock.json
-          node-version: 18
-          cache: "npm"
-      - name: Install
-        run: npm ci --prefer-offline
-      - name: Alex
-        run: npm run alex
-      - name: Prettier
-        run: npm run prettier -- --list-different
-      - name: Eslint
-        run: npm run eslint -- --max-warnings 0
+          version: 10
+      - name: Install and Build
+        run: |
+          pnpm lint:eslint
+          pnpm lint:prettier
+          pnpm lint:type

@@ -14,22 +14,17 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout source code
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11
+        uses: actions/checkout@v4
       - name: Setup pnpm
-        uses: pnpm/action-setup@a3252b78c470c02df07e9d59298aecedc3ccdd6d
+        uses: pnpm/action-setup@v4
         with:
           version: 10
-      - name: Setup Node.js
-        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8
-        with:
-          node-version: "18.x"
-          cache: "pnpm"
       - name: Install and Build
         run: |
           pnpm install
           pnpm run build
       - name: Start backend with Docker compose
-        run: docker-compose -f scripts/docker-compose-backend-e2e.yaml up -d
+        run: docker compose -f scripts/docker-compose-backend-e2e.yaml up -d
       - name: Wait for services to be ready
         run: |
           # Wait for backend to be ready
@@ -43,7 +38,7 @@ jobs:
       - name: Collect logs on failure
         if: failure()
         run: |
-          docker-compose -f scripts/docker-compose-backend-e2e.yaml logs
+          docker compose -f scripts/docker-compose-backend-e2e.yaml logs
       - name: Stop backend
         if: always()
-        run: docker-compose -f scripts/docker-compose-backend-e2e.yaml down
+        run: docker compose -f scripts/docker-compose-backend-e2e.yaml down
