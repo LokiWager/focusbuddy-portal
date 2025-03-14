@@ -5,7 +5,9 @@ import {
   getCurrFocusSession,
   updateFocusSession,
   updateUserStatus,
+  GetFocusSessionResponse
 } from "@/common/api/api";
+import { Focus } from "lucide-react";
 import { storage } from "wxt/storage";
 let focusTimer: NodeJS.Timeout | null = null;
 let currentState: "idle" | "focus" | "rest" = "idle";
@@ -17,7 +19,15 @@ let remainingBreakTime = 10 * 60;
 let sessionId = "";
 const ports: chrome.runtime.Port[] = [];
 
+let nextFocusLength = 30;
+let nextBreakLength = 10;
+let nextFocusType = "Choose a focus type";
+let nextSessionId = "";
+let nextStartTime = "";
+let nextStartDate = "";
+
 export const FOCUS_STORAGE_KEY = "local:x_focus";
+const NEXT_SESSION_STORAGE_KEY = "local:next_focus_session";
 
 interface Message {
   type: string;
@@ -186,7 +196,29 @@ export async function initializeState() {
       resetState();
     }
   }
-  // TODO: fetch next upcoming session from local storage and backend
+  storage.getItem<GetFocusSessionResponse>(NEXT_SESSION_STORAGE_KEY).then((data) => {
+    nextFocusLength = data?.duration ?? 30;
+    nextBreakLength = data?.break_duration ?? 10;
+    nextFocusType = data?.session_type ? SessionTypeReverse[data.session_type] : "Choose a focus type";
+    nextSessionId = data?.session_id ?? "";
+    nextStartTime = data?.start_time ?? "";
+    nextStartDate = data?.start_date ?? "";
+    console.log("Next Focus Session:", data);
+    checkSessionTime();
+
+    chrome.storage.onChanged.addListener((changes, ) => {
+      if (changes.next_focus_session) {
+        const data = changes.next_focus_session.newValue;
+        nextFocusLength = data?.duration ?? 30;
+        nextBreakLength = data?.break_duration ?? 10;
+        nextFocusType = data?.session_type ? SessionTypeReverse[data.session_type] : "Choose a focus type";
+        nextSessionId = data?.session_id ?? "";
+        nextStartTime = data?.start_time ?? "";
+        nextStartDate = data?.start_date ?? "";
+        console.log("Updated Next Focus Session:", data);
+      }
+    });
+  });
 }
 
 export function timerListener(port: chrome.runtime.Port) {
@@ -326,6 +358,47 @@ function startTimer() {
   }, 1000);
 }
 
+const checkSessionTime = () => {
+  setInterval(() => {
+    if (nextStartTime != "" && nextStartDate != "") {
+      const startDateTimeInSeconds = Math.floor(
+        new Date(`${nextStartDate} ${nextStartTime}`).getTime() / 1000
+      );
+      const now = Math.floor(new Date().getTime() / 1000);
+      if (now === startDateTimeInSeconds) {
+        console.log("Time to start the session!");
+        // Trigger session start logic
+        updateFocusSession(nextSessionId, {session_status: FocusSessionStatus.Ongoing})
+          .then((data) => {
+            console.log("Session updated successfully:", data);
+            const message = {
+              type: "START_FOCUS",
+              currentState: "focus",
+              focusLength: nextFocusLength,
+              breakLength: nextBreakLength,
+              focusType: nextFocusType,
+              sessionId: nextSessionId,
+            }
+            startFocusSession(message);
+            resetNextSession();
+          })
+          .catch((err) => {
+            console.error("Error updating session:", err);
+          });
+        updateUserStatus({
+          user_status: UserStatus[nextFocusType as keyof typeof UserStatus],
+        })
+          .then((data) => {
+            console.log("User status updated successfully:", data);
+          })
+          .catch((err) => {
+            console.error("Error updating user status:", err);
+          });
+      }
+    }
+  }, 1000);
+};
+
 function updateSessionTime() {
   const request = {
     remaining_focus_time: remainingFocusTime,
@@ -358,6 +431,15 @@ function resetState() {
   remainingFocusTime = 30 * 60;
   remainingBreakTime = 10 * 60;
   sessionId = "";
+}
+
+function resetNextSession() {
+  nextFocusLength = 30;
+  nextBreakLength = 10;
+  nextFocusType = "Choose a focus type";
+  nextSessionId = "";
+  nextStartTime = "";
+  nextStartDate = "";
 }
 
 function broadcastMessage(message: Message) {
