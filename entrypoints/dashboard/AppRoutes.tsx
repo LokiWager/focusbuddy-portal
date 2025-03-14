@@ -16,10 +16,7 @@ export function AppRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="blocked"
-        element={<BlockedPage />}
-      />
+      <Route path="blocked" element={<BlockedPage />} />
       <Route element={<AppLayout />}>
         <Route index element={<Home />} />
         {!!auth.user && (

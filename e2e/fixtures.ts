@@ -12,7 +12,7 @@ export const test = base.extend<{
   context: async (
     // eslint-disable-next-line no-empty-pattern
     {},
-    use
+    use,
   ) => {
     const context = await chromium.launchPersistentContext("", {
       channel: "chromium",

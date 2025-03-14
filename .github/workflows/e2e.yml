@@ -1,0 +1,48 @@
+name: E2E Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [edited, synchronize, ready_for_review]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    name: E2E Test
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+      - name: Install and Build
+        run: |
+          pnpm install
+          pnpm exec playwright install
+      - name: Start backend with Docker compose
+        run: docker compose -f scripts/docker-compose-backend-e2e.yaml up -d
+      - name: Wait for services to be ready
+        run: |
+          # Wait for backend to be ready
+          echo "Waiting for backend to be ready..."
+          timeout 60s bash -c 'until curl -s http://localhost:8000/health; do sleep 2; done'
+          echo "Backend is ready!"
+      - name: Build and Run E2E tests
+        run: |
+          pnpm build:e2e
+          pnpm e2e
+      - name: Archive E2E test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results
+      - name: Collect logs on failure
+        if: failure()
+        run: |
+          docker compose -f scripts/docker-compose-backend-e2e.yaml logs
+      - name: Stop backend
+        if: always()
+        run: docker compose -f scripts/docker-compose-backend-e2e.yaml down

@@ -2,7 +2,10 @@ import { expect, Page } from "@playwright/test";
 import { FocusSessionType } from "../../common/api/api";
 
 export class PopupPage {
-  constructor(private page: Page, private extensionId: string) {}
+  constructor(
+    private page: Page,
+    private extensionId: string,
+  ) {}
 
   async goto() {
     await this.page.goto(`chrome-extension://${this.extensionId}/popup.html`);
@@ -19,7 +22,7 @@ export class PopupPage {
         body: JSON.stringify({
           token: "",
         }),
-      }
+      },
     );
     const data = await response.json();
 

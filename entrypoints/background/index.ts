@@ -10,9 +10,8 @@ import {
 } from "./focusTimerBackground";
 
 async function onStorageChange() {
-  const xfocus: { state: string; type: string } | null = await storage.getItem(
-    FOCUS_STORAGE_KEY
-  );
+  const xfocus: { state: string; type: string } | null =
+    await storage.getItem(FOCUS_STORAGE_KEY);
 
   const { state, type } = xfocus || { state: "idle", type: "" };
   if (state === "focus") {

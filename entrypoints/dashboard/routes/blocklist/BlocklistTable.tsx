@@ -15,7 +15,7 @@ export function BlockListTable(props: { data: BlockListModel[] }) {
     }
   };
   return (
-    <div className="py-10">
+    <div className="py-10" data-testid="blocklist-table">
       <div className="w-full space-y-3">
         {data.map((item) => (
           <div

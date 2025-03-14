@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { NavItem } from "@/common/components/Navigation/NavItem";
-import { useGetNextFocusSession, useGetAllFocusSession, useDeleteFocusSession, FocusSessionStatus } from "@/common/api/api";
+import {
+  useGetNextFocusSession,
+  useGetAllFocusSession,
+  useDeleteFocusSession,
+  FocusSessionStatus,
+} from "@/common/api/api";
 
 function formatStartDate(dateStr?: string): string {
   if (!dateStr) return "N/A";
@@ -10,9 +15,19 @@ function formatStartDate(dateStr?: string): string {
   return `${month} ${day}`;
 }
 
-
-function formatTimeRange(startDate?: string, startTime?: string, duration?: number, breakDuration?: number): string {
-  if (!startDate || !startTime || duration === undefined || breakDuration === undefined) return "N/A";
+function formatTimeRange(
+  startDate?: string,
+  startTime?: string,
+  duration?: number,
+  breakDuration?: number,
+): string {
+  if (
+    !startDate ||
+    !startTime ||
+    duration === undefined ||
+    breakDuration === undefined
+  )
+    return "N/A";
   const start = startTime.substring(0, 5);
   const startHour = parseInt(start.substring(0, 2), 10);
   const startMinute = parseInt(start.substring(3, 5), 10);
@@ -30,9 +45,12 @@ export const sessionColors: { [key: number]: string } = {
 };
 
 export function Focustimer() {
-  const { data: nextFocusSession, isLoading: isNextLoading } = useGetNextFocusSession();
-  const { data: allFocusSessions, isLoading: isAllLoading } = useGetAllFocusSession(FocusSessionStatus.Upcoming);
-  const { mutate: deleteSession, isPending: isDeleting } = useDeleteFocusSession();
+  const { data: nextFocusSession, isLoading: isNextLoading } =
+    useGetNextFocusSession();
+  const { data: allFocusSessions, isLoading: isAllLoading } =
+    useGetAllFocusSession(FocusSessionStatus.Upcoming);
+  const { mutate: deleteSession, isPending: isDeleting } =
+    useDeleteFocusSession();
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
 
@@ -54,14 +72,14 @@ export function Focustimer() {
           console.error(`Failed to delete focus session:`, error);
           setSessionToDelete(null);
         },
-      }
+      },
     );
   };
 
   const cancelDelete = () => {
     setSessionToDelete(null);
   };
-  
+
   return (
     <div className="container mx-auto py-10 space-y-10">
       {/* Upcoming Session */}
@@ -73,8 +91,14 @@ export function Focustimer() {
           ) : nextFocusSession?.focus_session ? (
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-6">
-              <div className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider shadow-md ${sessionColors[nextFocusSession.focus_session.session_type ?? 3]}`}>
-                  {["Work", "Study", "Personal", "Other"][nextFocusSession.focus_session.session_type ?? 3]}
+                <div
+                  className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider shadow-md ${sessionColors[nextFocusSession.focus_session.session_type ?? 3]}`}
+                >
+                  {
+                    ["Work", "Study", "Personal", "Other"][
+                      nextFocusSession.focus_session.session_type ?? 3
+                    ]
+                  }
                 </div>
 
                 <div className="flex items-center space-x-4 text-lg font-semibold tracking-wide">
@@ -86,7 +110,7 @@ export function Focustimer() {
                       nextFocusSession.focus_session.start_date,
                       nextFocusSession.focus_session.start_time,
                       nextFocusSession.focus_session.duration,
-                      nextFocusSession.focus_session.break_duration
+                      nextFocusSession.focus_session.break_duration,
                     )}
                   </span>
                 </div>
@@ -94,12 +118,16 @@ export function Focustimer() {
 
               <button
                 className="text-black-500 cursor-pointer"
-                onClick={() => handleDeleteSession(nextFocusSession.focus_session?.session_id)}
+                onClick={() =>
+                  handleDeleteSession(
+                    nextFocusSession.focus_session?.session_id,
+                  )
+                }
                 disabled={isDeleting}
               >
-                <img 
-                  src={"/icon/trashcan.png"} 
-                  alt="Delete" 
+                <img
+                  src={"/icon/trashcan.png"}
+                  alt="Delete"
                   className="w-6 h-6 cursor-pointer"
                 />
               </button>
@@ -110,12 +138,14 @@ export function Focustimer() {
         </div>
       </div>
 
-
       {/* Focus Schedule */}
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Focus Schedule</h2>
-          <NavItem to="/focustimer/addsession" className="bg-[#f2cdcd] text-black rounded-lg px-4 py-2 font-bold shadow-md">
+          <NavItem
+            to="/focustimer/addsession"
+            className="bg-[#f2cdcd] text-black rounded-lg px-4 py-2 font-bold shadow-md"
+          >
             + Add Session
           </NavItem>
         </div>
@@ -125,10 +155,19 @@ export function Focustimer() {
             <div className="text-gray-600">Loading...</div>
           ) : (allFocusSessions?.focus_sessions ?? []).length > 0 ? (
             allFocusSessions?.focus_sessions?.map((session) => (
-              <div key={session.session_id ?? ""} className="flex items-center justify-between">
+              <div
+                key={session.session_id ?? ""}
+                className="flex items-center justify-between"
+              >
                 <div className="flex items-center space-x-6">
-                <div className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider shadow-md ${sessionColors[session.session_type ?? 3]}`}>
-                    {["Work", "Study", "Personal", "Other"][session.session_type ?? 3]}
+                  <div
+                    className={`w-32 text-center py-2 rounded text-xl font-bold tracking-wider shadow-md ${sessionColors[session.session_type ?? 3]}`}
+                  >
+                    {
+                      ["Work", "Study", "Personal", "Other"][
+                        session.session_type ?? 3
+                      ]
+                    }
                   </div>
                   <div className="flex items-center space-x-4 text-lg font-semibold tracking-wide">
                     <span className="text-xl font-bold">
@@ -139,7 +178,7 @@ export function Focustimer() {
                         session.start_date,
                         session.start_time,
                         session.duration,
-                        session.break_duration
+                        session.break_duration,
                       )}
                     </span>
                   </div>
@@ -150,9 +189,9 @@ export function Focustimer() {
                   onClick={() => handleDeleteSession(session.session_id)}
                   disabled={isDeleting}
                 >
-                  <img 
-                    src={"/icon/trashcan.png"} 
-                    alt="Delete" 
+                  <img
+                    src={"/icon/trashcan.png"}
+                    alt="Delete"
                     className="w-6 h-6 cursor-pointer"
                   />
                 </button>
@@ -164,13 +203,15 @@ export function Focustimer() {
         </div>
       </div>
 
-
       {/* Deletion Confirmation */}
       {sessionToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg shadow-lg text-center">
             <h3 className="text-xl font-bold mb-4">Are you sure?</h3>
-            <p className="text-gray-600 mb-6">Do you really want to delete this focus session? This action cannot be undone.</p>
+            <p className="text-gray-600 mb-6">
+              Do you really want to delete this focus session? This action
+              cannot be undone.
+            </p>
             <div className="flex justify-center space-x-4">
               <button
                 className="bg-gray-300 text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-400"

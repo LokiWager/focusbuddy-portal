@@ -24,7 +24,7 @@ export function AddBlocklist(props: {
 
   const toggleBlocklistType = (type: BlockListType) => {
     setSelectedTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
   const handleSubmit = async (e: React.FormEvent) => {

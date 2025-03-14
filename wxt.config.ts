@@ -1,5 +1,5 @@
 import { defineConfig, UserManifest, WxtViteConfig } from "wxt";
-import path, { resolve } from "node:path";
+import { resolve } from "node:path";
 import fs from "node:fs";
 import pluginReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -65,13 +65,13 @@ export default defineConfig({
           const port = ctx.path.endsWith("popup.html")
             ? 8097
             : ctx.path.endsWith("dashboard.html")
-            ? 8098
-            : null;
+              ? 8098
+              : null;
           if (!port) return html;
 
           return html.replace(
             /<head>/,
-            `<head><script src="http://localhost:${port}"></script>`
+            `<head><script src="http://localhost:${port}"></script>`,
           );
         },
       },

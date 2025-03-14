@@ -36,5 +36,5 @@ export default tseslint.config(
     },
     rules: { ...reactHooks.configs.recommended.rules },
   },
-  pluginQuery.configs["flat/recommended"]
+  pluginQuery.configs["flat/recommended"],
 );

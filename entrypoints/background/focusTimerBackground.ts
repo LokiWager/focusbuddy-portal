@@ -1,13 +1,12 @@
 import {
   FocusSessionStatus,
   FocusSessionType,
+  GetFocusSessionResponse,
   UserStatus,
   getCurrFocusSession,
   updateFocusSession,
   updateUserStatus,
-  GetFocusSessionResponse
 } from "@/common/api/api";
-import { Focus } from "lucide-react";
 import { storage } from "wxt/storage";
 let focusTimer: NodeJS.Timeout | null = null;
 let currentState: "idle" | "focus" | "rest" = "idle";
@@ -42,7 +41,7 @@ interface Message {
 
 async function updateCurrentStateAndType(
   state: typeof currentState,
-  type: string
+  type: string,
 ) {
   focusType = type;
   currentState = state;
@@ -55,7 +54,7 @@ async function updateCurrentStateAndType(
 }
 
 const SessionTypeReverse = Object.fromEntries(
-  Object.entries(FocusSessionType).map(([key, value]) => [value, key])
+  Object.entries(FocusSessionType).map(([key, value]) => [value, key]),
 );
 
 export async function initializeState() {
@@ -73,7 +72,7 @@ export async function initializeState() {
     const currStartDate = session.start_date;
     const currStartTime = session.start_time;
     const startDateTimeInSeconds = Math.floor(
-      new Date(`${currStartDate} ${currStartTime}`).getTime() / 1000
+      new Date(`${currStartDate} ${currStartTime}`).getTime() / 1000,
     );
     const completedFocusTime = currFocusDuration * 60 - currRemainingFocusTime;
     const completedBreakTime = currBreakDuration * 60 - currRemainingBreakTime;
@@ -88,7 +87,7 @@ export async function initializeState() {
         startDateTimeInSeconds +
           completedBreakTime +
           currRemainingFocusTime -
-          now
+          now,
       );
       await updateCurrentStateAndType("focus", currFocusType);
       focusLength = currFocusDuration;
@@ -112,7 +111,7 @@ export async function initializeState() {
           startDateTimeInSeconds +
             completedFocusTime +
             currRemainingBreakTime -
-            now
+            now,
         );
         focusLength = currFocusDuration;
         breakLength = currBreakDuration;
@@ -135,7 +134,7 @@ export async function initializeState() {
           startDateTimeInSeconds +
             currBreakDuration * 60 +
             currRemainingFocusTime -
-            now
+            now,
         );
         focusLength = currFocusDuration;
         breakLength = currBreakDuration;
@@ -196,29 +195,35 @@ export async function initializeState() {
       resetState();
     }
   }
-  storage.getItem<GetFocusSessionResponse>(NEXT_SESSION_STORAGE_KEY).then((data) => {
-    nextFocusLength = data?.duration ?? 30;
-    nextBreakLength = data?.break_duration ?? 10;
-    nextFocusType = data?.session_type ? SessionTypeReverse[data.session_type] : "Choose a focus type";
-    nextSessionId = data?.session_id ?? "";
-    nextStartTime = data?.start_time ?? "";
-    nextStartDate = data?.start_date ?? "";
-    console.log("Next Focus Session:", data);
-    checkSessionTime();
+  storage
+    .getItem<GetFocusSessionResponse>(NEXT_SESSION_STORAGE_KEY)
+    .then((data) => {
+      nextFocusLength = data?.duration ?? 30;
+      nextBreakLength = data?.break_duration ?? 10;
+      nextFocusType = data?.session_type
+        ? SessionTypeReverse[data.session_type]
+        : "Choose a focus type";
+      nextSessionId = data?.session_id ?? "";
+      nextStartTime = data?.start_time ?? "";
+      nextStartDate = data?.start_date ?? "";
+      console.log("Next Focus Session:", data);
+      checkSessionTime();
 
-    chrome.storage.onChanged.addListener((changes, ) => {
-      if (changes.next_focus_session) {
-        const data = changes.next_focus_session.newValue;
-        nextFocusLength = data?.duration ?? 30;
-        nextBreakLength = data?.break_duration ?? 10;
-        nextFocusType = data?.session_type ? SessionTypeReverse[data.session_type] : "Choose a focus type";
-        nextSessionId = data?.session_id ?? "";
-        nextStartTime = data?.start_time ?? "";
-        nextStartDate = data?.start_date ?? "";
-        console.log("Updated Next Focus Session:", data);
-      }
+      chrome.storage.onChanged.addListener((changes) => {
+        if (changes.next_focus_session) {
+          const data = changes.next_focus_session.newValue;
+          nextFocusLength = data?.duration ?? 30;
+          nextBreakLength = data?.break_duration ?? 10;
+          nextFocusType = data?.session_type
+            ? SessionTypeReverse[data.session_type]
+            : "Choose a focus type";
+          nextSessionId = data?.session_id ?? "";
+          nextStartTime = data?.start_time ?? "";
+          nextStartDate = data?.start_date ?? "";
+          console.log("Updated Next Focus Session:", data);
+        }
+      });
     });
-  });
 }
 
 export function timerListener(port: chrome.runtime.Port) {
@@ -270,7 +275,7 @@ function startFocusSession(message: Message) {
   breakLength = message.breakLength ?? 10;
   updateCurrentStateAndType(
     "focus",
-    message.focusType ?? "Choose a focus type"
+    message.focusType ?? "Choose a focus type",
   );
   remainingFocusTime = focusLength * 60;
   remainingBreakTime = breakLength * 60;
@@ -362,13 +367,15 @@ const checkSessionTime = () => {
   setInterval(() => {
     if (nextStartTime != "" && nextStartDate != "") {
       const startDateTimeInSeconds = Math.floor(
-        new Date(`${nextStartDate} ${nextStartTime}`).getTime() / 1000
+        new Date(`${nextStartDate} ${nextStartTime}`).getTime() / 1000,
       );
       const now = Math.floor(new Date().getTime() / 1000);
       if (now === startDateTimeInSeconds) {
         console.log("Time to start the session!");
         // Trigger session start logic
-        updateFocusSession(nextSessionId, {session_status: FocusSessionStatus.Ongoing})
+        updateFocusSession(nextSessionId, {
+          session_status: FocusSessionStatus.Ongoing,
+        })
           .then((data) => {
             console.log("Session updated successfully:", data);
             const message = {
@@ -378,7 +385,7 @@ const checkSessionTime = () => {
               breakLength: nextBreakLength,
               focusType: nextFocusType,
               sessionId: nextSessionId,
-            }
+            };
             startFocusSession(message);
             resetNextSession();
           })

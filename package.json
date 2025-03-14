@@ -18,7 +18,10 @@
     "test": "vitest",
     "build:e2e": "wxt build --mode testing",
     "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui"
+    "e2e:ui": "playwright test --ui",
+    "lint:eslint": "eslint",
+    "lint:type": "tsc --noEmit",
+    "lint:prettier": "prettier --check . && echo 'format successful' || (prettier --write .; git diff; return 1)"
   },
   "dependencies": {
     "@radix-ui/react-dropdown-menu": "^2.1.5",
@@ -35,6 +38,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.474.0",
+    "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "^19.0.0",

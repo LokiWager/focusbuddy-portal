@@ -64,13 +64,13 @@ export function Blocklist() {
           blocklist.some(
             (entry) =>
               entry.domain === currentSite &&
-              entry.list_type === convertBlocklistType()
+              entry.list_type === convertBlocklistType(),
           );
 
         const matchingEntry = blocklist.find(
           (entry) =>
             entry.domain === currentSite &&
-            entry.list_type === BlockListType.Permanent
+            entry.list_type === BlockListType.Permanent,
         );
         if (isSiteInFocusList || matchingEntry) {
           setIsBlocked(true);
@@ -112,7 +112,7 @@ export function Blocklist() {
               description: err.message,
             });
           },
-        }
+        },
       );
     } else {
       // Add to permanent blocklist
@@ -133,7 +133,7 @@ export function Blocklist() {
               description: err.message,
             });
           },
-        }
+        },
       );
     }
   };
