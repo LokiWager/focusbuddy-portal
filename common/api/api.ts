@@ -81,7 +81,6 @@ interface AnalyticsTotalsResponse {
 }
 
 export interface AnalyticsListWeeklyChartResponse {
-  user_id: string;
   session_type: FocusSessionType;
   duration: number;
 }
@@ -106,28 +105,38 @@ export function useListAnalyticsDashBoard() {
   });
 
   return {
-    daily: analyticsTotals.data?.daily,
-    weekly: analyticsTotals.data?.weekly,
-    completed_sessions: analyticsTotals.data?.completed_sessions,
+    daily: analyticsTotals.data?.daily || 0,
+    weekly: analyticsTotals.data?.weekly || 0,
+    completed_sessions: analyticsTotals.data?.completed_sessions || 0,
   };
 }
 
-export function useListAnalyticsWeeklyChart() {
+export function useListAnalyticsWeeklyChart(startDate: Date, endDate: Date) {
   const authFetch = useAuthFetch();
 
+  const formatDate = (date: Date) => {
+    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const year = date.getFullYear();
+    return `${month}/${day}/${year}`;
+  };
+
   const analyticsWeeklyChart = useQuery<AnalyticsListChartResponse>({
-    queryKey: ["analyticschart"],
+    queryKey: ["analyticschart", startDate, endDate],
     queryFn: async () => {
+      const formattedStartDate = formatDate(startDate);
+      const formattedEndDate = formatDate(endDate);
       const response = await authFetch(
-        `${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary`,
+        `${import.meta.env.WXT_API_BASE_URI}/analytics/weeklysummary?start_date=${formattedStartDate}&end_date=${formattedEndDate}`,
       );
       const data: AnalyticsListChartResponse = await response.json();
       return data;
     },
+    enabled: !!startDate && !!endDate,
   });
 
   return {
-    summary: analyticsWeeklyChart.data?.summary,
+    summary: analyticsWeeklyChart.data?.summary || [],
     status: analyticsWeeklyChart.data?.status,
   };
 }
