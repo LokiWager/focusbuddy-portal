@@ -56,8 +56,14 @@ export function AddBlocklist(props: {
     setIsModalOpen(false);
   };
   const suggestedWebsites = [
-    "youtube.com", "facebook.com", "x.com", "tiktok.com",
-    "reddit.com", "instagram.com", "netflix.com", "amazon.com"
+    "youtube.com",
+    "facebook.com",
+    "x.com",
+    "tiktok.com",
+    "reddit.com",
+    "instagram.com",
+    "netflix.com",
+    "amazon.com",
   ];
 
   return (
@@ -86,14 +92,21 @@ export function AddBlocklist(props: {
               <div className="mt-4">
                 <p className="font-semibold mb-4">Suggested Websites:</p>
                 <div className="grid grid-cols-2 gap-2">
-                  {suggestedWebsites.map(site => (
+                  {suggestedWebsites.map((site) => (
                     <button
                       key={site}
+                      type="button"
                       className="border rounded px-3 py-2 flex items-center justify-between w-full hover:bg-gray-100"
                       onClick={() => setNewWebsite(site)}
                     >
-                      <img src={getIconURLFromDomain(site)} alt={site} className="w-5 h-5 rounded" />
-                      <span className="flex-1 text-center font-medium">{site}</span>
+                      <img
+                        src={getIconURLFromDomain(site)}
+                        alt={site}
+                        className="w-5 h-5 rounded"
+                      />
+                      <span className="flex-1 text-center font-medium">
+                        {site}
+                      </span>
                       <span className="text-lg font-semibold">+</span>
                     </button>
                   ))}
