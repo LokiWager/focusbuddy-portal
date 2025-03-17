@@ -5,6 +5,9 @@ import {
   useGetAllFocusSession,
   useDeleteFocusSession,
   FocusSessionStatus,
+  FocusSessionModel,
+  useUpdateFocusSession,
+  FocusSessionType
 } from "@/common/api/api";
 
 function formatStartDate(dateStr?: string): string {
@@ -51,8 +54,10 @@ export function Focustimer() {
     useGetAllFocusSession(FocusSessionStatus.Upcoming);
   const { mutate: deleteSession, isPending: isDeleting } =
     useDeleteFocusSession();
+  const { mutate: updateSession } = useUpdateFocusSession();
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+  const [sessionToEdit, setSessionToEdit] = useState<(FocusSessionModel & { session_id: string }) | null>(null);
 
   const handleDeleteSession = (sessionId?: string) => {
     if (!sessionId) return;
@@ -80,12 +85,76 @@ export function Focustimer() {
     setSessionToDelete(null);
   };
 
+  const handleEditSession = (session: Partial<FocusSessionModel> & { session_id: string }) => {
+    setSessionToEdit({
+      session_id: session.session_id,
+      session_status: session.session_status ?? FocusSessionStatus.Upcoming,
+      start_date: session.start_date ?? "",
+      start_time: session.start_time ?? "",
+      duration: session.duration ?? 30,
+      break_duration: session.break_duration ?? 0,
+      session_type: session.session_type ?? FocusSessionType.Work,
+      remaining_focus_time: session.remaining_focus_time ?? 1800,
+      remaining_break_time: session.remaining_break_time ?? 0,
+    });
+  };
+
+  const cancelEdit = () => {
+    setSessionToEdit(null);
+  };
+
+  const confirmEdit = () => {
+    if (!sessionToEdit) return;
+  
+    updateSession(
+      {
+        sessionId: sessionToEdit.session_id,
+        data: {
+          session_status: sessionToEdit.session_status,
+          start_date: sessionToEdit.start_date,
+          start_time: sessionToEdit.start_time,
+          duration: sessionToEdit.duration,
+          break_duration: sessionToEdit.break_duration,
+          session_type: sessionToEdit.session_type,
+          remaining_focus_time: sessionToEdit.remaining_focus_time,
+          remaining_break_time: sessionToEdit.remaining_break_time,
+        },
+      },
+      {
+        onSuccess: () => {
+          console.log(`Focus Session ${sessionToEdit.session_id} updated successfully!`);
+          setSessionToEdit(null);
+          alert("Session updated successfully!");
+        },
+        onError: (error: any) => {
+          //console.log("Response data:", error.response.data);
+          console.error(`Failed to update focus session:`, error);
+          const errorMessage = error?.response?.data?.message || error?.message || "An unknown error occurred.";
+          alert(errorMessage);
+          setSessionToEdit(null);
+        },
+      }
+    );
+  };
+
+  // Converts MM/DD/YYYY → YYYY-MM-DD
+  const formatDateToYYYYMMDD = (dateStr: string) => {
+    const [month, day, year] = dateStr.split("/");
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+  };
+
+  // Converts YYYY-MM-DD → MM/DD/YYYY
+  const formatDateToMMDDYYYY = (dateStr: string) => {
+    const [year, month, day] = dateStr.split("-");
+    return `${month}/${day}/${year}`;
+  };
+
   return (
     <div className="container mx-auto py-10 space-y-10">
       {/* Upcoming Session */}
       <div>
         <h2 className="text-2xl font-bold mb-4">Upcoming Session</h2>
-        <div className="bg-gray-100 p-4 rounded shadow min-h-[100px]">
+        <div className="bg-[#f5f5f5] p-4 rounded shadow min-h-[100px]">
           {isNextLoading ? (
             <div className="text-gray-600">Loading...</div>
           ) : nextFocusSession?.focus_session ? (
@@ -116,21 +185,40 @@ export function Focustimer() {
                 </div>
               </div>
 
-              <button
-                className="text-black-500 cursor-pointer"
-                onClick={() =>
-                  handleDeleteSession(
-                    nextFocusSession.focus_session?.session_id,
-                  )
-                }
-                disabled={isDeleting}
-              >
-                <img
-                  src={"/icon/trashcan.png"}
-                  alt="Delete"
-                  className="w-6 h-6 cursor-pointer"
-                />
-              </button>
+              <div className="flex space-x-4">
+                {/* Edit Button */}
+                <button
+                  className="text-black-500 cursor-pointer"
+                  onClick={() => {
+                    const session = nextFocusSession.focus_session;
+                    if (session?.session_id) {
+                      handleEditSession({ ...session, session_id: session.session_id });
+                    }
+                  }}
+                >
+                  <img
+                    src={"/icon/edit.png"}
+                    alt="Edit"
+                    className="w-5 h-5 cursor-pointer"
+                  />
+                </button>
+
+                <button
+                  className="text-black-500 cursor-pointer"
+                  onClick={() =>
+                    handleDeleteSession(
+                      nextFocusSession.focus_session?.session_id,
+                    )
+                  }
+                  disabled={isDeleting}
+                >
+                  <img
+                    src={"/icon/trashcan.png"}
+                    alt="Delete"
+                    className="w-6 h-6 cursor-pointer"
+                  />
+                </button>
+              </div>
             </div>
           ) : (
             <div className="text-gray-600">No Focus Session Now.</div>
@@ -150,7 +238,7 @@ export function Focustimer() {
           </NavItem>
         </div>
 
-        <div className="bg-gray-100 p-4 rounded shadow space-y-4 min-h-[100px]">
+        <div className="bg-[#f5f5f5] p-4 rounded shadow space-y-4 min-h-[100px]">
           {isAllLoading ? (
             <div className="text-gray-600">Loading...</div>
           ) : (allFocusSessions?.focus_sessions ?? []).length > 0 ? (
@@ -184,17 +272,35 @@ export function Focustimer() {
                   </div>
                 </div>
 
-                <button
-                  className="text-black-500 cursor-pointer"
-                  onClick={() => handleDeleteSession(session.session_id)}
-                  disabled={isDeleting}
-                >
-                  <img
-                    src={"/icon/trashcan.png"}
-                    alt="Delete"
-                    className="w-6 h-6 cursor-pointer"
-                  />
-                </button>
+                <div className="flex space-x-4">
+                  {/* Edit Button */}
+                  <button
+                    className="text-black-500 cursor-pointer"
+                    onClick={() => {
+                      if (session?.session_id) {
+                        handleEditSession({ ...session, session_id: session.session_id });
+                      }
+                    }}
+                  >
+                    <img
+                    src={"/icon/edit.png"}
+                    alt="Edit"
+                    className="w-5 h-5 cursor-pointer"
+                    />
+                  </button>
+
+                  <button
+                    className="text-black-500 cursor-pointer"
+                    onClick={() => handleDeleteSession(session.session_id)}
+                    disabled={isDeleting}
+                  >
+                    <img
+                      src={"/icon/trashcan.png"}
+                      alt="Delete"
+                      className="w-6 h-6 cursor-pointer"
+                    />
+                  </button>
+                </div>
               </div>
             ))
           ) : (
@@ -203,10 +309,220 @@ export function Focustimer() {
         </div>
       </div>
 
+      {/* Edit Window */}
+      {sessionToEdit && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-[#f5f5f5] p-6 rounded-lg shadow-lg w-[400px]">
+            <h3 className="text-xl font-bold mb-4 text-center">Edit Session</h3>
+
+            {/* Type Options */}
+            <div>
+              <label className="block text-lg font-semibold mb-2">Type</label>
+              <div className="grid grid-cols-4 gap-2">
+                {["Work", "Study", "Personal", "Other"].map((label, index) => (
+                  <button
+                    key={index}
+                    className={`px-4 py-2 rounded-lg ${
+                      sessionToEdit.session_type === index
+                        ? sessionColors[index]
+                        : "bg-white text-black border border-gray-300"
+                    }`}
+                    onClick={() =>
+                      setSessionToEdit((prev) => prev ? { ...prev, session_type: index as FocusSessionType } : prev
+                      )
+                    }
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Start Date */}
+            <div className="mt-4">
+              <label className="block text-lg font-semibold mb-2">Start Date</label>
+              <input
+                type="date"
+                className="w-full px-4 py-2 border rounded-lg bg-white"
+                value={
+                  sessionToEdit.start_date
+                    ? formatDateToYYYYMMDD(sessionToEdit.start_date) // Ensure input shows YYYY-MM-DD
+                    : ""
+                }
+                onChange={(e) =>
+                  setSessionToEdit((prev) =>
+                    prev ? { ...prev, start_date: formatDateToMMDDYYYY(e.target.value) } : prev
+                  )
+                }
+              />
+            </div>
+
+            {/* Start Time */}
+            <div className="mt-4">
+              <label className="block text-lg font-semibold mb-2">Start Time</label>
+              <div className="flex items-center space-x-2">
+                <select
+                  className="w-1/2 px-4 py-2 border rounded-lg bg-white"
+                  value={sessionToEdit.start_time?.split(":")[0] ?? "00"}
+                  onChange={(e) =>
+                    setSessionToEdit((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            start_time: `${e.target.value.padStart(
+                              2,
+                              "0"
+                            )}:${sessionToEdit.start_time?.split(":")[1] ?? "00"}:00`,
+                          }
+                        : prev
+                    )
+                  }
+                >
+                  {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
+                    <option key={hour} value={hour}>
+                      {hour.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-xl font-bold">:</span>
+                <select
+                  className="w-1/2 px-4 py-2 border rounded-lg bg-white"
+                  value={sessionToEdit.start_time?.split(":")[1] ?? "00"}
+                  onChange={(e) =>
+                    setSessionToEdit((prev) =>
+                      prev
+                        ? {
+                            ...prev,
+                            start_time: `${
+                              sessionToEdit.start_time?.split(":")[0] ?? "00"
+                            }:${e.target.value.padStart(2, "0")}:00`,
+                          }
+                        : prev
+                    )
+                  }
+                >
+                  {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                    <option key={minute} value={minute}>
+                      {minute.toString().padStart(2, "0")}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Duration */}
+            <div className="mt-4">
+              <label className="block text-lg font-semibold mb-2">Duration (minutes)</label>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className="w-8 h-8 flex items-center justify-center bg-[#c1cef8] rounded-full text-lg font-bold"
+                  onClick={() =>
+                    setSessionToEdit((prev) =>
+                      prev ? { ...prev, duration: Math.max(1, prev.duration! - 1) } : prev
+                    )
+                  }
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  className="w-16 px-4 py-2 border rounded-lg bg-white text-center"
+                  min="1"
+                  value={sessionToEdit.duration ?? 30}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) =>
+                    setSessionToEdit((prev) =>
+                      prev ? { ...prev, duration: Number(e.target.value) } : prev
+                    )
+                  }
+                />
+                <button
+                  type="button"
+                  className="w-8 h-8 flex items-center justify-center bg-[#f2cdcd] rounded-full text-lg font-bold"
+                  onClick={() =>
+                    setSessionToEdit((prev) =>
+                      prev ? { ...prev, duration: prev.duration! + 1 } : prev
+                    )
+                  }
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Break Time */}
+            <div className="mt-4">
+              <label className="block text-lg font-semibold mb-2">Break Time (minutes)</label>
+              <div className="flex items-center space-x-2">
+                <button
+                  type="button"
+                  className="w-8 h-8 flex items-center justify-center bg-[#c1cef8] rounded-full text-lg font-bold"
+                  onClick={() =>
+                    setSessionToEdit((prev) =>
+                      prev ? { ...prev, break_duration: Math.max(0, prev.break_duration! - 1) } : prev
+                    )
+                  }
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  className="w-16 px-4 py-2 border rounded-lg bg-white text-center"
+                  min="0"
+                  value={sessionToEdit.break_duration ?? 0}
+                  onKeyDown={(e) => {
+                    if (e.key === "-" || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  }}
+                  onChange={(e) =>
+                    setSessionToEdit((prev) =>
+                      prev ? { ...prev, break_duration: Number(e.target.value) } : prev
+                    )
+                  }
+                />
+                <button
+                  type="button"
+                  className="w-8 h-8 flex items-center justify-center bg-[#f2cdcd] rounded-full text-lg font-bold"
+                  onClick={() =>
+                    setSessionToEdit((prev) =>
+                      prev ? { ...prev, break_duration: prev.break_duration! + 1 } : prev
+                    )
+                  }
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex justify-end space-x-4 mt-6">
+              <button
+                className="bg-gray-300 text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 shadow-md"
+                onClick={cancelEdit}
+              >
+                Cancel
+              </button>
+              <button
+                className="bg-[#f2cdcd] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#c1cef8] shadow-md"
+                onClick={confirmEdit}
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Deletion Confirmation */}
       {sessionToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg shadow-lg text-center">
+          <div className="bg-[#f5f5f5] p-6 rounded-lg shadow-lg text-center">
             <h3 className="text-xl font-bold mb-4">Are you sure?</h3>
             <p className="text-gray-600 mb-6">
               Do you really want to delete this focus session? This action
@@ -214,13 +530,13 @@ export function Focustimer() {
             </p>
             <div className="flex justify-center space-x-4">
               <button
-                className="bg-gray-300 text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-400"
+                className="bg-gray-300 text-black px-6 py-2 rounded-lg font-semibold hover:bg-gray-400 shadow-md"
                 onClick={cancelDelete}
               >
                 Cancel
               </button>
               <button
-                className="bg-[#f2cdcd] text-black px-6 py-2 rounded-lg font-semibold hover:bg-red-600"
+                className="bg-[#f2cdcd] text-black px-6 py-2 rounded-lg font-bold hover:bg-[#c1cef8] shadow-md"
                 onClick={confirmDelete}
               >
                 Continue
