@@ -63,7 +63,7 @@ interface BlocklistsResponse {
   status: string;
 }
 
-interface FocusSessionModel {
+export interface FocusSessionModel {
   session_status: FocusSessionStatus;
   start_date?: string;
   start_time?: string;
