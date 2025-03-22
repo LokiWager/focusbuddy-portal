@@ -242,7 +242,7 @@ export function Addsession() {
           <NavItem
             to="/focustimer"
             className="bg-[#f2cdcd] !text-black text-lg px-8 py-3 rounded-lg font-bold shadow-md"
-            onClick={async (e) => {
+            onClick={async () => {
               await handleAddSession();
             }}
           >

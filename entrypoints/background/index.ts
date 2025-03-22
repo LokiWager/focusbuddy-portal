@@ -27,7 +27,8 @@ export default defineBackground(async () => {
   // Handle connections from the popup
   chrome.runtime.onConnect.addListener(timerListener);
 
-  chrome.storage.onChanged.addListener(async (changes, namespace) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  chrome.storage.onChanged.addListener(async (changes, _namespace) => {
     if (changes.x_focus || changes.blocklist) {
       await onStorageChange();
     }
