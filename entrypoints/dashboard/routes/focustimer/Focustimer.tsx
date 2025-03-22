@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NavItem } from "@/common/components/Navigation/NavItem";
 import {
   useGetNextFocusSession,
@@ -9,6 +9,7 @@ import {
   useUpdateFocusSession,
   FocusSessionType,
 } from "@/common/api/api";
+import { createEvents } from "ics";
 
 function formatStartDate(dateStr?: string): string {
   if (!dateStr) return "N/A";
@@ -57,9 +58,25 @@ export function Focustimer() {
   const { mutate: updateSession } = useUpdateFocusSession();
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
-  const [sessionToEdit, setSessionToEdit] = useState<
-    (FocusSessionModel & { session_id: string }) | null
-  >(null);
+  const [sessionToEdit, setSessionToEdit] = useState<(FocusSessionModel & { session_id: string }) | null>(null);
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleDeleteSession = (sessionId?: string) => {
     if (!sessionId) return;
@@ -158,6 +175,47 @@ export function Focustimer() {
     return `${month}/${day}/${year}`;
   };
 
+
+  const handleExportICS = () => {
+    const sessions = allFocusSessions?.focus_sessions ?? [];
+  
+    if (sessions.length === 0) {
+      alert("No upcoming sessions to export.");
+      return;
+    }
+  
+    const events = sessions.map((session) => {
+      const [month, day, year] = session.start_date!.split("/").map(Number);
+      const [hour, minute] = session.start_time!.split(":").map(Number);
+  
+      const start: [number, number, number, number, number] = [year, month, day, hour, minute,];
+  
+      return {
+        start,
+        duration: { minutes: session.duration ?? 30 },
+        title: `${["Work", "Study", "Personal", "Other"][session.session_type ?? 3]} Session`,
+        description: "Focus Session from your schedule.",
+        startOutputType: "local" as const,
+      };
+    });
+  
+    createEvents(events as any, (error, value) => {
+      if (error) {
+        console.error(error);
+        alert("Failed to create ICS file.");
+        return;
+      }
+  
+      const blob = new Blob([value], { type: "text/calendar" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "focus_schedule.ics";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  };  
+
   return (
     <div className="container mx-auto py-10 space-y-10">
       {/* Upcoming Session */}
@@ -242,13 +300,45 @@ export function Focustimer() {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Focus Schedule</h2>
-          <NavItem
-            to="/focustimer/addsession"
-            className="bg-[#f2cdcd] text-black rounded-lg px-4 py-2 font-bold shadow-md"
-          >
-            + Add Session
-          </NavItem>
-        </div>
+          <div className="flex space-x-4 items-center">
+            {/* Dropdown Wrapper */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                className="bg-[#c1cef888] text-black rounded-lg px-4 py-2 font-bold shadow-md text-lg"
+              >
+                Export Schedule ▾
+              </button>
+
+              {isDropdownOpen && (
+                <div className="absolute z-10 bg-white border shadow-md rounded-lg mt-1 w-40">
+                  <button
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      handleExportICS();
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+                  >
+                    .ics File
+                  </button>
+                  <button
+                    disabled
+                    className="block w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed text-sm"
+                  >
+                    .pdf File
+                  </button>
+                </div>
+              )}
+            </div>
+            {/* Add Session Button */}
+            <NavItem
+              to="/focustimer/addsession"
+              className="bg-[#f2cdcd] text-black rounded-lg px-4 py-2 font-bold shadow-md text-lg"
+            >
+              + Add Session
+            </NavItem>
+          </div>
+        </div>  
 
         <div className="bg-[#f5f5f5] p-4 rounded shadow space-y-4 min-h-[100px]">
           {isAllLoading ? (
