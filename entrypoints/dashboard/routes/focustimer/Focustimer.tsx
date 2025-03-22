@@ -58,7 +58,9 @@ export function Focustimer() {
   const { mutate: updateSession } = useUpdateFocusSession();
 
   const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
-  const [sessionToEdit, setSessionToEdit] = useState<(FocusSessionModel & { session_id: string }) | null>(null);
+  const [sessionToEdit, setSessionToEdit] = useState<
+    (FocusSessionModel & { session_id: string }) | null
+  >(null);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -175,21 +177,26 @@ export function Focustimer() {
     return `${month}/${day}/${year}`;
   };
 
-
   const handleExportICS = () => {
     const sessions = allFocusSessions?.focus_sessions ?? [];
-  
+
     if (sessions.length === 0) {
       alert("No upcoming sessions to export.");
       return;
     }
-  
+
     const events = sessions.map((session) => {
       const [month, day, year] = session.start_date!.split("/").map(Number);
       const [hour, minute] = session.start_time!.split(":").map(Number);
-  
-      const start: [number, number, number, number, number] = [year, month, day, hour, minute,];
-  
+
+      const start: [number, number, number, number, number] = [
+        year,
+        month,
+        day,
+        hour,
+        minute,
+      ];
+
       return {
         start,
         duration: { minutes: session.duration ?? 30 },
@@ -198,14 +205,14 @@ export function Focustimer() {
         startOutputType: "local" as const,
       };
     });
-  
+
     createEvents(events as any, (error, value) => {
       if (error) {
         console.error(error);
         alert("Failed to create ICS file.");
         return;
       }
-  
+
       const blob = new Blob([value], { type: "text/calendar" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
@@ -214,7 +221,7 @@ export function Focustimer() {
       link.click();
       document.body.removeChild(link);
     });
-  };  
+  };
 
   return (
     <div className="container mx-auto py-10 space-y-10">
@@ -338,7 +345,7 @@ export function Focustimer() {
               + Add Session
             </NavItem>
           </div>
-        </div>  
+        </div>
 
         <div className="bg-[#f5f5f5] p-4 rounded shadow space-y-4 min-h-[100px]">
           {isAllLoading ? (
