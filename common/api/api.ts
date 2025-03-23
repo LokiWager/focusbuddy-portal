@@ -141,31 +141,36 @@ export function useListAnalyticsWeeklyChart(startDate: Date, endDate: Date) {
   };
 }
 
-// Notifications 
-export function useUpdateNotification(){
+// Notifications
+export function useUpdateNotification() {
   const authFetch = useAuthFetch();
 
-
   const mutation = useMutation({
-    mutationFn: async({ type, enabled }: { type: string; enabled: boolean }) => {
+    mutationFn: async ({
+      type,
+      enabled,
+    }: {
+      type: string;
+      enabled: boolean;
+    }) => {
       const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/user/update-notification`,
         {
           method: "PUT",
-          body: JSON.stringify({type,enabled}),
+          body: JSON.stringify({ type, enabled }),
         },
       );
-        if (!response.ok){
-          throw new Error("Failed to update notification settings")
-        }
+      if (!response.ok) {
+        throw new Error("Failed to update notification settings");
+      }
     },
   });
   return mutation;
 }
 
-interface NotificationSettingsResponse{
-  browser: boolean,
-  email_notification: boolean,
+interface NotificationSettingsResponse {
+  browser: boolean;
+  email_notification: boolean;
 }
 
 export function useListNotificationSettings() {
@@ -173,23 +178,20 @@ export function useListNotificationSettings() {
 
   const notificationSettings = useQuery<NotificationSettingsResponse>({
     queryKey: ["notificationSettings"],
-    queryFn: async() => {
+    queryFn: async () => {
       const response = await authFetch(
         `${import.meta.env.WXT_API_BASE_URI}/user/list-notification`,
       );
-      const data: NotificationSettingsResponse = await response.json()
-      return data
-    }
-
+      const data: NotificationSettingsResponse = await response.json();
+      return data;
+    },
   });
- 
+
   return {
     browser: notificationSettings.data?.browser || false,
     email_notification: notificationSettings.data?.email_notification || false,
   };
-
 }
-
 
 export function useListBlocklist() {
   const client = useQueryClient();

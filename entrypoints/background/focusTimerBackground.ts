@@ -373,19 +373,30 @@ const checkSessionTime = () => {
       const now = Math.floor(new Date().getTime() / 1000);
 
       // Check if it's five minutes (300 seconds) before session start
-      if (!notificationSent && now >= startDateTimeInSeconds - 300 && now < startDateTimeInSeconds) {
+      if (
+        !notificationSent &&
+        now >= startDateTimeInSeconds - 300 &&
+        now < startDateTimeInSeconds
+      ) {
         chrome.storage.local.get("browserNotification", (result) => {
-          console.log("Browser notification setting:", result.browserNotification);
+          console.log(
+            "Browser notification setting:",
+            result.browserNotification,
+          );
           if (result.browserNotification) {
-            chrome.notifications.create("focus-session-notification", {
-              type: "basic",
-              iconUrl: chrome.runtime.getURL("/icon/48.png"),
-              title: "Upcoming Focus Session",
-              message: "Your focus session starts in 5 minutes!",
-              priority: 2,
-            }, (notificationId) => {
-              console.log("Notification created with ID:", notificationId);
-            });
+            chrome.notifications.create(
+              "focus-session-notification",
+              {
+                type: "basic",
+                iconUrl: chrome.runtime.getURL("/icon/48.png"),
+                title: "Upcoming Focus Session",
+                message: "Your focus session starts in 5 minutes!",
+                priority: 2,
+              },
+              (notificationId) => {
+                console.log("Notification created with ID:", notificationId);
+              },
+            );
           }
         });
         notificationSent = true;

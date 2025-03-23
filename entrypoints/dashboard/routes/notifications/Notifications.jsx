@@ -1,36 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { useUpdateNotification, useListNotificationSettings } from "@/common/api/api";
+import {
+  useUpdateNotification,
+  useListNotificationSettings,
+} from "@/common/api/api";
 
 export const Notifications = () => {
   const [browserNotification, setBrowserNotification] = useState(false);
   const [emailNotification, setEmailNotification] = useState(false);
   const mutation = useUpdateNotification();
 
+  const notificationSettings = useListNotificationSettings();
 
- const notificationSettings = useListNotificationSettings();
-
- useEffect(() => {
-   if (notificationSettings.browser !== undefined) {
-     setBrowserNotification(notificationSettings.browser);
-     chrome.storage.local.set({ browserNotification: notificationSettings.browser });
-   }
-   if (notificationSettings.email_notification !== undefined) {
-     setEmailNotification(notificationSettings.email_notification);
-     chrome.storage.local.set({ emailNotification: notificationSettings.email_notification });
-   }
- }, [notificationSettings.browser, notificationSettings.email_notification]);
-
+  useEffect(() => {
+    if (notificationSettings.browser !== undefined) {
+      setBrowserNotification(notificationSettings.browser);
+      chrome.storage.local.set({
+        browserNotification: notificationSettings.browser,
+      });
+    }
+    if (notificationSettings.email_notification !== undefined) {
+      setEmailNotification(notificationSettings.email_notification);
+      chrome.storage.local.set({
+        emailNotification: notificationSettings.email_notification,
+      });
+    }
+  }, [notificationSettings.browser, notificationSettings.email_notification]);
 
   const handleToggle = (type) => {
-    const newValue = type === "browser" ? !browserNotification : !emailNotification;
+    const newValue =
+      type === "browser" ? !browserNotification : !emailNotification;
 
-    if (type === "browser"){
-        setBrowserNotification(newValue);
-        chrome.storage.local.set({ browserNotification: newValue });
-    } 
-    else {
-        setEmailNotification(newValue);
-        chrome.storage.local.set({ emailNotification: newValue });
+    if (type === "browser") {
+      setBrowserNotification(newValue);
+      chrome.storage.local.set({ browserNotification: newValue });
+    } else {
+      setEmailNotification(newValue);
+      chrome.storage.local.set({ emailNotification: newValue });
     }
 
     mutation.mutate(
@@ -40,13 +45,12 @@ export const Notifications = () => {
           if (type === "browser") {
             setBrowserNotification(!newValue);
             chrome.storage.local.set({ browserNotification: !newValue });
-          }
-          else {
+          } else {
             setEmailNotification(!newValue);
             chrome.storage.local.set({ emailNotification: !newValue });
           }
         },
-      }
+      },
     );
   };
 
@@ -59,7 +63,12 @@ export const Notifications = () => {
         <div className="flex items-center justify-between mb-4">
           <span className="text-gray-700">Browser Notifications</span>
           <label className="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" className="sr-only peer" checked={browserNotification} readOnly />
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={browserNotification}
+              readOnly
+            />
             <div
               onClick={() => handleToggle("browser")}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
@@ -79,7 +88,12 @@ export const Notifications = () => {
         <div className="flex items-center justify-between">
           <span className="text-gray-700">Weekly Email Notifications</span>
           <label className="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" className="sr-only peer" checked={emailNotification} readOnly/>
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={emailNotification}
+              readOnly
+            />
             <div
               onClick={() => handleToggle("email")}
               className={`w-12 h-6 flex items-center rounded-full p-1 transition-all duration-300 ${
@@ -98,4 +112,3 @@ export const Notifications = () => {
     </div>
   );
 };
-
