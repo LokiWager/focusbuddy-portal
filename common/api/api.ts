@@ -141,6 +141,56 @@ export function useListAnalyticsWeeklyChart(startDate: Date, endDate: Date) {
   };
 }
 
+// Notifications 
+export function useUpdateNotification(){
+  const authFetch = useAuthFetch();
+
+
+  const mutation = useMutation({
+    mutationFn: async({ type, enabled }: { type: string; enabled: boolean }) => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/user/update-notification`,
+        {
+          method: "PUT",
+          body: JSON.stringify({type,enabled}),
+        },
+      );
+        if (!response.ok){
+          throw new Error("Failed to update notification settings")
+        }
+    },
+  });
+  return mutation;
+}
+
+interface NotificationSettingsResponse{
+  browser: boolean,
+  email_notification: boolean,
+}
+
+export function useListNotificationSettings() {
+  const authFetch = useAuthFetch();
+
+  const notificationSettings = useQuery<NotificationSettingsResponse>({
+    queryKey: ["notificationSettings"],
+    queryFn: async() => {
+      const response = await authFetch(
+        `${import.meta.env.WXT_API_BASE_URI}/user/list-notification`,
+      );
+      const data: NotificationSettingsResponse = await response.json()
+      return data
+    }
+
+  });
+ 
+  return {
+    browser: notificationSettings.data?.browser || false,
+    email_notification: notificationSettings.data?.email_notification || false,
+  };
+
+}
+
+
 export function useListBlocklist() {
   const client = useQueryClient();
   const authFetch = useAuthFetch();
