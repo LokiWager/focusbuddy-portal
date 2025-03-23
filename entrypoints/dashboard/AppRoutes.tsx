@@ -7,6 +7,7 @@ import { Addsession } from "./routes/focustimer/Addsession";
 import { Focustimer } from "./routes/focustimer/Focustimer";
 import { Home } from "./routes/home/Home";
 import { BlockedPage } from "./routes/blocklist/BlockedPage";
+import { Notifications } from "./routes/notifications/Notifications";
 
 export function AppRoutes() {
   const auth = useAuth();
@@ -27,6 +28,7 @@ export function AppRoutes() {
               <Route path="addsession" element={<Addsession />} />
             </Route>
             <Route path="analytics" element={<Dashboard />} />
+            <Route path="notifications" element={<Notifications />} />
           </>
         )}
       </Route>

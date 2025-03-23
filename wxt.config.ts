@@ -29,6 +29,7 @@ export default defineConfig({
     const manifest: UserManifest = {
       permissions: [
         "storage",
+        "notifications",
         "identity",
         "activeTab",
         "declarativeNetRequest",
