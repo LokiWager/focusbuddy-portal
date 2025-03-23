@@ -24,6 +24,7 @@ let nextFocusType = "Choose a focus type";
 let nextSessionId = "";
 let nextStartTime = "";
 let nextStartDate = "";
+let notificationSent = false;
 
 export const FOCUS_STORAGE_KEY = "local:x_focus";
 const NEXT_SESSION_STORAGE_KEY = "local:next_focus_session";
@@ -370,6 +371,31 @@ const checkSessionTime = () => {
         new Date(`${nextStartDate} ${nextStartTime}`).getTime() / 1000,
       );
       const now = Math.floor(new Date().getTime() / 1000);
+
+      // Check if it's five minutes (300 seconds) before session start
+      if (!notificationSent && now >= startDateTimeInSeconds - 300 && now < startDateTimeInSeconds) {
+        chrome.storage.local.get("browserNotification", (result) => {
+          console.log("Browser notification setting:", result.browserNotification);
+          if (result.browserNotification) {
+            chrome.notifications.create("focus-session-notification", {
+              type: "basic",
+              iconUrl: chrome.runtime.getURL("/icon/48.png"),
+              title: "Upcoming Focus Session",
+              message: "Your focus session starts in 5 minutes!",
+              priority: 2,
+            }, (notificationId) => {
+              console.log("Notification created with ID:", notificationId);
+            });
+          }
+        });
+        notificationSent = true;
+      }
+
+      // Reset notificationSent once the session has started (or passed)
+      if (now >= startDateTimeInSeconds) {
+        notificationSent = false;
+      }
+
       if (now === startDateTimeInSeconds) {
         console.log("Time to start the session!");
         // Trigger session start logic
