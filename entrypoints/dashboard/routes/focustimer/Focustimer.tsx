@@ -223,6 +223,45 @@ export function Focustimer() {
     });
   };
 
+  const handleExportCSV = () => {
+    const sessions = allFocusSessions?.focus_sessions ?? [];
+
+    if (sessions.length === 0) {
+        alert("No upcoming sessions to export.");
+        return;
+    }
+
+    const header = "Subject, Start Date, Start Time, End Date, End Time, Focus Duration, Break Duration";
+    const csvRows = [header];
+
+    sessions.forEach((session) => {
+        const [month, day, year] = session.start_date!.split("/").map(Number);
+        const [hour, minute] = session.start_time!.split(":").map(Number);
+        const duration = session.duration ?? 30;
+        const break_duration = session.break_duration ?? 0;
+        
+        const startDate = `${month}/${day}/${year}`;
+        const startTime = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+        
+        const endDateObj = new Date(year, month - 1, day, hour, minute + duration);
+        const endDate = `${endDateObj.getMonth() + 1}/${endDateObj.getDate()}/${endDateObj.getFullYear()}`;
+        const endTime = `${endDateObj.getHours().toString().padStart(2, "0")}:${endDateObj.getMinutes().toString().padStart(2, "0")}`;
+        
+        const title = `${["Work", "Study", "Personal", "Other"][session.session_type ?? 3]} Session`;
+        
+        csvRows.push(`"${title}","${startDate}","${startTime}","${endDate}","${endTime}","${duration}","${break_duration}"`);
+    });
+
+    const csvContent = csvRows.join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "focus_schedule.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
   return (
     <div className="container mx-auto py-10 space-y-10">
       {/* Upcoming Session */}
@@ -329,10 +368,13 @@ export function Focustimer() {
                     .ics File
                   </button>
                   <button
-                    disabled
-                    className="block w-full text-left px-4 py-2 text-gray-400 cursor-not-allowed text-sm"
+                    onClick={() => {
+                      setIsDropdownOpen(false);
+                      handleExportCSV();
+                    }}
+                    className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
                   >
-                    .pdf File
+                    .csv File
                   </button>
                 </div>
               )}
