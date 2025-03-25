@@ -201,9 +201,10 @@ export async function initializeState() {
     .then((data) => {
       nextFocusLength = data?.duration ?? 30;
       nextBreakLength = data?.break_duration ?? 10;
-      nextFocusType = data?.session_type
-        ? SessionTypeReverse[data.session_type]
-        : "Choose a focus type";
+      nextFocusType =
+        data?.session_type !== undefined
+          ? SessionTypeReverse[data.session_type]
+          : "Choose a focus type";
       nextSessionId = data?.session_id ?? "";
       nextStartTime = data?.start_time ?? "";
       nextStartDate = data?.start_date ?? "";
@@ -215,9 +216,10 @@ export async function initializeState() {
           const data = changes.next_focus_session.newValue;
           nextFocusLength = data?.duration ?? 30;
           nextBreakLength = data?.break_duration ?? 10;
-          nextFocusType = data?.session_type
-            ? SessionTypeReverse[data.session_type]
-            : "Choose a focus type";
+          nextFocusType =
+            data?.session_type !== undefined
+              ? SessionTypeReverse[data.session_type]
+              : "Choose a focus type";
           nextSessionId = data?.session_id ?? "";
           nextStartTime = data?.start_time ?? "";
           nextStartDate = data?.start_date ?? "";
