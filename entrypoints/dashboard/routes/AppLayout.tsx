@@ -13,11 +13,11 @@ export function AppLayout() {
       <div className="bg-gray-100 w-50">
         <h1 className="pt-10 pb-10 pl-5 text-2xl font-bold">Focus Buddy</h1>
         <div className="flex flex-col">
-          <NavItem to="/">Home</NavItem>
           {!!auth.user && (
             <>
+              <NavItem to="/focustimer">Focus Timer</NavItem>
               <NavItem to="/blocklist">Blocklist</NavItem>
-              <NavItem to="/Focustimer">Focus Timer</NavItem>
+              <NavItem to="/calendar">Calendar</NavItem>
               <NavItem to="/analytics">Dashboard</NavItem>
               <NavItem to="/notifications">Notifications</NavItem>
             </>

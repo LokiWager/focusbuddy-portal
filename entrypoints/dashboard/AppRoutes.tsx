@@ -5,9 +5,10 @@ import { AppLayout } from "./routes/AppLayout";
 import { Blocklist } from "./routes/blocklist/Blocklist";
 import { Addsession } from "./routes/focustimer/Addsession";
 import { Focustimer } from "./routes/focustimer/Focustimer";
-import { Home } from "./routes/home/Home";
+import { Calendar } from "./routes/calendar/Calendar";
 import { BlockedPage } from "./routes/blocklist/BlockedPage";
 import { Notifications } from "./routes/notifications/Notifications";
+import { useEffect } from "react";
 
 export function AppRoutes() {
   const auth = useAuth();
@@ -19,9 +20,11 @@ export function AppRoutes() {
     <Routes>
       <Route path="blocked" element={<BlockedPage />} />
       <Route element={<AppLayout />}>
-        <Route index element={<Home />} />
         {!!auth.user && (
           <>
+            <Route 
+              path="calendar" 
+              element={<Calendar/>} />
             <Route path="blocklist" element={<Blocklist />} />
             <Route path="focustimer">
               <Route index element={<Focustimer />} />

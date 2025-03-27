@@ -40,7 +40,9 @@ export default defineConfig({
       oauth2: {
         client_id:
           "608661990870-kno8u7trt6bhfd04borf9jtghqukcdft.apps.googleusercontent.com",
-        scopes: ["https://www.googleapis.com/auth/userinfo.email"],
+        scopes: [
+          "https://www.googleapis.com/auth/userinfo.email",
+          "https://www.googleapis.com/auth/calendar.readonly"],
       },
     };
     if (mode === "development") {

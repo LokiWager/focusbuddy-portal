@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 import { browser } from "wxt/browser";
 
 const DASHBOARD_URL = browser.runtime.getURL("/dashboard.html");
-const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/settings");
+// const SETTINGS_URL = browser.runtime.getURL("/dashboard.html#/settings");
 
 export function Layout(props: { children: ReactNode }) {
   const auth = useAuth();
@@ -23,13 +23,14 @@ export function Layout(props: { children: ReactNode }) {
           Focus Buddy
         </a>
         {auth.user ? (
-          <a href={SETTINGS_URL} target="_blank" rel="noreferrer">
-            <img
-              src="/icon/settings-icon.png"
-              alt="Focus Buddy"
-              className="settings-icon"
-            />
-          </a>
+          // <a href={SETTINGS_URL} target="_blank" rel="noreferrer">
+          //   <img
+          //     src="/icon/settings-icon.png"
+          //     alt="Focus Buddy"
+          //     // className="settings-icon"
+          //   />
+          // </a>
+          null
         ) : (
           <Login />
         )}
