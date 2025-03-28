@@ -22,18 +22,7 @@ export function Layout(props: { children: ReactNode }) {
           <img src="/icon/logo.png" alt="Focus Buddy" />
           Focus Buddy
         </a>
-        {auth.user ? (
-          // <a href={SETTINGS_URL} target="_blank" rel="noreferrer">
-          //   <img
-          //     src="/icon/settings-icon.png"
-          //     alt="Focus Buddy"
-          //     // className="settings-icon"
-          //   />
-          // </a>
-          null
-        ) : (
-          <Login />
-        )}
+        {auth.user ? null : <Login />}
       </div>
       {props.children}
     </div>

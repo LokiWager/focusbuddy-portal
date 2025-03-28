@@ -22,9 +22,7 @@ export function AppRoutes() {
       <Route element={<AppLayout />}>
         {!!auth.user && (
           <>
-            <Route 
-              path="calendar" 
-              element={<Calendar/>} />
+            <Route path="calendar" element={<Calendar />} />
             <Route path="blocklist" element={<Blocklist />} />
             <Route path="focustimer">
               <Route index element={<Focustimer />} />

@@ -42,7 +42,8 @@ export default defineConfig({
           "608661990870-kno8u7trt6bhfd04borf9jtghqukcdft.apps.googleusercontent.com",
         scopes: [
           "https://www.googleapis.com/auth/userinfo.email",
-          "https://www.googleapis.com/auth/calendar.readonly"],
+          "https://www.googleapis.com/auth/calendar.readonly",
+        ],
       },
     };
     if (mode === "development") {

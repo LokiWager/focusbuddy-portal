@@ -44,7 +44,9 @@ export function Calendar() {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentView, setCurrentView] = useState<"week" | "day" | "agenda">("week");
+  const [currentView, setCurrentView] = useState<"week" | "day" | "agenda">(
+    "week",
+  );
 
   useEffect(() => {
     async function getTokenAndFetchCalendar(forceRefresh = false) {
@@ -67,7 +69,9 @@ export function Calendar() {
       }
     }
 
-    async function getValidToken(forceRefresh: boolean): Promise<string | null> {
+    async function getValidToken(
+      forceRefresh: boolean,
+    ): Promise<string | null> {
       if (!forceRefresh && token) {
         return token; // Use cached token
       }
@@ -88,33 +92,42 @@ export function Calendar() {
       return new Promise<string>((resolve, reject) => {
         chrome.identity.getAuthToken({ interactive: false }, (newToken) => {
           if (chrome.runtime.lastError || !newToken) {
-            console.warn("Failed to get token:", chrome.runtime.lastError?.message || "No token");
+            console.warn(
+              "Failed to get token:",
+              chrome.runtime.lastError?.message || "No token",
+            );
             return reject("No valid token");
           }
           setToken(newToken); // Cache token in state
-          chrome.storage.local.set({ token: newToken }, () => {
-          });
+          chrome.storage.local.set({ token: newToken }, () => {});
           resolve(newToken);
         });
       });
     }
 
     async function fetchAllCalendarEvents(token: string) {
-      const colorMeta = await fetch("https://www.googleapis.com/calendar/v3/colors", {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((res) => res.json());
+      const colorMeta = await fetch(
+        "https://www.googleapis.com/calendar/v3/colors",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      ).then((res) => res.json());
 
-      const calendarList = await fetch("https://www.googleapis.com/calendar/v3/users/me/calendarList", {
-        headers: { Authorization: `Bearer ${token}` },
-      }).then((res) => res.json());
-
+      const calendarList = await fetch(
+        "https://www.googleapis.com/calendar/v3/users/me/calendarList",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      ).then((res) => res.json());
 
       const calendarColors: Record<string, string> = {};
       calendarList.items.forEach((cal: CalendarListItem) => {
         calendarColors[cal.id] = cal.backgroundColor;
       });
 
-      const timeMin = startOfWeek(new Date(), { weekStartsOn: 1 }).toISOString();
+      const timeMin = startOfWeek(new Date(), {
+        weekStartsOn: 1,
+      }).toISOString();
 
       const results = await Promise.all(
         calendarList.items
@@ -124,7 +137,7 @@ export function Calendar() {
               `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(cal.id)}/events?singleEvents=true&orderBy=startTime&timeMin=${timeMin}&maxResults=250`,
               {
                 headers: { Authorization: `Bearer ${token}` },
-              }
+              },
             );
             const data = await res.json();
             const eventsWithColors = (data.items || []).map((event: any) => {
@@ -153,7 +166,7 @@ export function Calendar() {
             });
 
             return eventsWithColors;
-          })
+          }),
       );
 
       setEvents(results.flat());
