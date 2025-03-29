@@ -113,6 +113,7 @@ export function Addsession() {
         <div>
           <label className="block text-lg font-semibold mb-2">Start Date</label>
           <input
+            data-testid="start-date"
             type="date"
             className="w-full px-4 py-2 border rounded-lg bg-white"
             value={startDate}
@@ -164,6 +165,7 @@ export function Addsession() {
               -
             </button>
             <input
+              data-testid="duration-input"
               type="number"
               className="w-16 px-4 py-2 border rounded-lg bg-white text-center"
               min="1"
@@ -204,6 +206,7 @@ export function Addsession() {
               -
             </button>
             <input
+              data-testid="break-duration-input"
               type="number"
               className="w-16 px-4 py-2 border rounded-lg bg-white text-center"
               min="0"
@@ -240,6 +243,7 @@ export function Addsession() {
           </NavItem>
 
           <NavItem
+            data-testid="confirm-add-session-button"
             to="/focustimer"
             className="bg-[#f2cdcd] !text-black text-lg px-8 py-3 rounded-lg font-bold shadow-md"
             onClick={async () => {
