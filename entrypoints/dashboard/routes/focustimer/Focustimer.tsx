@@ -390,6 +390,7 @@ export function Focustimer() {
             </div>
             {/* Add Session Button */}
             <NavItem
+              data-testid="add-session-button"
               to="/focustimer/addsession"
               className="bg-[#f2cdcd] text-black rounded-lg px-4 py-2 font-bold shadow-md text-lg"
             >
@@ -398,7 +399,10 @@ export function Focustimer() {
           </div>
         </div>
 
-        <div className="bg-[#f5f5f5] p-4 rounded shadow space-y-4 min-h-[100px]">
+        <div
+          className="bg-[#f5f5f5] p-4 rounded shadow space-y-4 min-h-[100px]"
+          data-testid="focus-schedule"
+        >
           {isAllLoading ? (
             <div className="text-gray-600">Loading...</div>
           ) : (allFocusSessions?.focus_sessions ?? []).length > 0 ? (
